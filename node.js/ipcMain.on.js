@@ -38,7 +38,7 @@ module.exports = function (win) {
         fs.writeFileSync(fullPath('./etcpack/index.js'), `
 
         ${graphsImport}
-        
+
          var graphs={${graphsKey}};
          var viewJSON=${JSON.stringify(view, null, 2)};
 
@@ -60,6 +60,8 @@ module.exports = function (win) {
                 fs.mkdirSync(targetFolder);
 
                 nodejs.copySync(fullPath('./etcpack/build'), nodejs.fullPath('./build', targetFolder));
+                nodejs.copySync(fullPath('./etcpack/libs'), nodejs.fullPath('./libs', targetFolder));
+                nodejs.copySync(fullPath('./etcpack/normalize.css'), nodejs.fullPath('normalize.css', targetFolder));
                 nodejs.copySync(fullPath('./etcpack/index.html'), nodejs.fullPath('index.html', targetFolder));
 
             }

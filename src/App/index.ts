@@ -48,7 +48,8 @@ export default class {
 
             // 最后调用绘制
             graphInstance(el, graph.config, {
-
+                echarts: globalThis.echarts,
+                image2D: globalThis.image2D
             })
         } else {
             alert('非常抱歉，由于插件[' + graph.name + ']未正确安装，此次运行被中断，请安装此插件~')

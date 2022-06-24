@@ -15,7 +15,8 @@ for (i = 0; i < viewJSON.value.graphs.length; i++) {
     el.style.height = graph.position.height + "%";
 
     graphs[graph.name](el, graph.config, {
-
+        echarts: window.echarts,
+        image2D: window.image2D
     })
 
 }

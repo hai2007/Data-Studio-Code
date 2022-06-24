@@ -1,5 +1,3 @@
-const CommonjsPlug = require('@etcpack/commonjs-plug');
-
 module.exports = {
 
     // 打包入口
@@ -22,10 +20,8 @@ module.exports = {
     }, {
         test: /\.(ts|js)$/,
         handler: [function (source) {
-            if (/node_modules/.test(this.filepath) && !/sprout-ui/.test(this.filepath)) return source;
+            if ((/node_modules/.test(this.filepath) && !/sprout-ui/.test(this.filepath)) || /echarts\.min\.js$/.test(this.filepath) || /image2D\.min\.js$/.test(this.filepath)) return source;
             return require('@babel/core').transformFileSync(this.filepath, require('./babel.config')).code;
         }]
-    }],
-
-    plug: [new CommonjsPlug()]
+    }]
 };

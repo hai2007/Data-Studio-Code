@@ -95,7 +95,6 @@ window.__etcpack__bundleSrc__['1']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     __etcpack__scope_args__=window.__etcpack__getBundle('2');
-var Nefbl =__etcpack__scope_args__.default;
  // 装饰器
 
 __etcpack__scope_bundle__.Module = Nefbl.Module;
@@ -120,14 +119,7 @@ __etcpack__scope_bundle__.reactive = Nefbl.reactive;
 window.__etcpack__bundleSrc__['2']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    
-
-        var module={
-            exports:{}
-        };
-        var exports=module.exports;
-
-        /*!
+    /*!
  * nefbl - 新一代前端框架
  *
  * git+https://github.com/nefbl/nefbl.git
@@ -1899,10 +1891,6 @@ window.__etcpack__bundleSrc__['2']=function(){
 
 }());
 
-
-        __etcpack__scope_bundle__.default= module.exports;
-
-        
   
     return __etcpack__scope_bundle__;
 }
@@ -2052,7 +2040,10 @@ var _class = (_dec = Component({
         el.style.width = graph.position.width + "%";
         el.style.height = graph.position.height + "%"; // 最后调用绘制
 
-        graphInstance(el, graph.config, {});
+        graphInstance(el, graph.config, {
+          echarts: globalThis.echarts,
+          image2D: globalThis.image2D
+        });
       } else {
         alert('非常抱歉，由于插件[' + graph.name + ']未正确安装，此次运行被中断，请安装此插件~');
       }

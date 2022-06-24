@@ -5,11 +5,43 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title></title>
+    <script src="./libs/echarts.min.js"></script>
+    <script src="./libs/image2D.min.js"></script>
+    <link rel="stylesheet" href="./normalize.css">
+    <style>
+        html {
+            /* 统一rem计算基数 */
+            font-size: 100px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 1px;
+        }
+
+        body {
+            /* 恢复正常字体大小 */
+            font-size: .16rem;
+        }
+    </style>
 </head>
 
-<body>
+<body onresize="window.location.reload()">
 
     <div id="root"></div>
+    <script>
+
+        var width = 1920;
+        var height = 1920 * window.innerHeight / window.innerWidth;
+
+        var scale = window.innerWidth / 1920;
+
+        var rootEl = document.getElementById('root');
+        rootEl.style.transformOrigin = 'left top';
+        rootEl.style.transform = 'scale(' + scale + ',' + scale + ' )';
+        rootEl.style.width = width + "px";
+        rootEl.style.height = height + 'px';
+
+    </script>
     <script src="./build/main.js"></script>
 
 </body>

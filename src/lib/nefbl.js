@@ -1,4 +1,4 @@
-import Nefbl from 'nefbl/dist/nefbl'
+import 'nefbl/dist/nefbl'
 
 // 装饰器
 export let Module = Nefbl.Module
