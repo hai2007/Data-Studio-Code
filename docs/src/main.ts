@@ -1,6 +1,8 @@
 import { platform } from 'nefbl'
 import normalize from "@hai2007/style/normalize.css"
-import style from './style/style.scss'
+
+// 兼容文件
+import '@hai2007/polyfill/Promise.js'
 
 // 引入主模块
 import appModule from "./app.module"
@@ -12,8 +14,9 @@ platform({
     el: document.getElementById('root'),
 
     // 全局样式
-    styles: [normalize, style]
+    styles: [normalize]
 
 })
+
     // 然后启动主模块
     .bootstrap(appModule)

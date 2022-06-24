@@ -68,12 +68,12 @@ var platform=__etcpack__scope_args__.platform;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('3');
 var normalize =__etcpack__scope_args__.default;
+ // 兼容文件
 
 __etcpack__scope_args__=window.__etcpack__getBundle('4');
-var style =__etcpack__scope_args__.default;
  // 引入主模块
 
-__etcpack__scope_args__=window.__etcpack__getBundle('5');
+__etcpack__scope_args__=window.__etcpack__getBundle('17');
 var appModule =__etcpack__scope_args__.default;
  // 先获取平台实例
 
@@ -81,7 +81,7 @@ platform({
   // 框架管理的区域
   el: document.getElementById('root'),
   // 全局样式
-  styles: [normalize, style]
+  styles: [normalize]
 }) // 然后启动主模块
 .bootstrap(appModule);
   
@@ -1919,232 +1919,366 @@ window.__etcpack__bundleSrc__['3']=function(){
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/style/style.scss
+// Original file:./node_modules/@hai2007/polyfill/Promise.js
 /*****************************************************************/
 window.__etcpack__bundleSrc__['4']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "\n ::-webkit-scrollbar{\n\nwidth: 1px;\n\n}\n"
+    /*!
+ * ✔️ - Promise
+ * https://github.com/hai2007/polyfill.js/blob/master/Promise.js
+ *
+ * author hai2007 < https://hai2007.gitee.io/sweethome >
+ *
+ * Copyright (c) 2021-present hai2007 走一步，再走一步。
+ * Released under the MIT license
+ */
+
+__etcpack__scope_args__=window.__etcpack__getBundle('5');
+var globalNAMESPACE =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('6');
+var isFunction=__etcpack__scope_args__.isFunction;
+var isObject=__etcpack__scope_args__.isObject;
+var isArray=__etcpack__scope_args__.isArray;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('16');
+var doResolve=__etcpack__scope_args__.doResolve;
+var changeState=__etcpack__scope_args__.changeState;
+var triggerEvent=__etcpack__scope_args__.triggerEvent;
+
+
+function Promise(doback) {
+
+    if (!(this instanceof Promise)) {
+
+        // 所有的报错方式和内容我们都尽力和原生的保持一致，下同
+        throw new TypeError('undefined is not a promise');
+    }
+
+    if (!(isFunction(doback))) {
+        throw new TypeError('Promise resolver ' + doback + ' is not a function');
+    }
+
+    /**
+     * 参数初始化
+     */
+
+    // 当前的值
+    this.__value = undefined;
+
+    // 记录着由于then，catch或finally登记的方法
+    // Array<onFulfilled|undefined, onRejected|undefined, callback|undefined>
+    this.__hocks = [];
+
+    // 状态
+    this.__state = 'pending';
+
+    /**
+     * 准备完毕以后，开始处理
+     */
+    doResolve(doback, this);
+}
+
+// 添加辅助方法
+Promise.prototype.$$changeState = changeState;
+Promise.prototype.$$triggerEvent = triggerEvent;
+
+/**
+ * 原型上的方法
+ */
+
+// 添加解决(fulfillment)和拒绝(rejection)回调到当前 promise,
+// 返回一个新的 promise,
+// 将以回调的返回值来resolve。
+Promise.prototype.then = function (onFulfilled, onRejected) {
+
+    this.__hocks.push([onFulfilled, onRejected, undefined]);
+
+    if (this.__state != 'pending') { this.$$triggerEvent(); }
+
+    return this;
+
+};
+
+// 添加一个拒绝(rejection) 回调到当前 promise, 返回一个新的promise。
+// 当这个回调函数被调用，
+// 新 promise 将以它的返回值来resolve，
+// 否则如果当前promise 进入fulfilled状态，
+// 则以当前promise的完成结果作为新promise的完成结果。
+Promise.prototype.catch = function (onRejected) {
+
+    this.__hocks.push([undefined, onRejected, undefined]);
+
+    if (this.__state != 'pending') { this.$$triggerEvent(); }
+
+    return this;
+
+};
+
+// 添加一个事件处理回调于当前promise对象，
+// 并且在原promise对象解析完毕后，
+// 返回一个新的promise对象。
+// 回调会在当前promise运行完毕后被调用，
+// 无论当前promise的状态是完成(fulfilled)还是失败(rejected)。
+Promise.prototype.finally = function (callback) {
+
+    this.__hocks.push([undefined, undefined, callback]);
+
+    if (this.__state != 'pending') { this.$$triggerEvent(); }
+
+    return this;
+
+
+};
+
+/**
+ * 静态方法
+ */
+
+// 返回一个状态由给定value决定的Promise对象。
+// 如果该值是thenable(即，带有then方法的对象)，
+// 返回的Promise对象的最终状态由then方法执行决定；
+// 否则的话(该value为空，基本类型或者不带then方法的对象),
+// 返回的Promise对象状态为fulfilled，
+// 并且将该value传递给对应的then方法。
+// 通常而言，如果您不知道一个值是否是Promise对象，使用Promise.resolve(value) 来返回一个Promise对象,
+// 这样就能将该value以Promise对象形式使用。
+Promise.resolve = function (value) {
+
+    if (isObject(value) && value.constructor === Promise) {
+        return value;
+    }
+
+    return new Promise(function (resolve) {
+        resolve(value);
+    });
+
+};
+
+// 返回一个状态为失败的Promise对象，
+// 并将给定的失败信息传递给对应的处理方法。
+Promise.reject = function (reason) {
+
+    return new Promise(function (resolve, reject) {
+        reject(reason);
+    });
+
+};
+
+// 这个方法返回一个新的promise对象，
+// 该promise对象在iterable参数对象里所有的promise对象都成功的时候才会触发成功，
+// 一旦有任何一个iterable里面的promise对象失败则立即触发该promise对象的失败。
+// 这个新的promise对象在触发成功状态以后，
+// 会把一个包含iterable里所有promise返回值的数组作为成功回调的返回值，
+// 顺序跟iterable的顺序保持一致；
+// 如果这个新的promise对象触发了失败状态，
+// 它会把iterable里第一个触发失败的promise对象的错误信息作为它的失败错误信息。
+// Promise.all方法常被用于处理多个promise对象的状态集合.
+Promise.all = function (iterable) {
+
+    return new Promise(function (resolve, reject) {
+
+        if (!isArray(iterable)) {
+            return reject(new TypeError('undefined is not iterable (cannot read property Symbol(Symbol.iterator))'));
+        }
+
+        var resultData = Array.prototype.slice.call(iterable), num = 0;
+
+        if (resultData.length == 0) resolve([]);
+
+        var doHelp = function (index, item) {
+            if (item.__state !== "pending") {
+
+                num += 1;
+
+                if (item.__state == 'rejected') {
+
+                    // 如果遇到第一个失败的，拒绝即可
+                    reject(item.__value);
+                } else {
+
+                    resultData[index] = item.__value;
+
+                    if (num == resultData.length) {
+                        resolve(resultData);
+                    }
+                }
+
+            } else {
+                setTimeout(function () { doHelp(index, item); });
+            }
+        };
+
+        for (var i = 0; i < resultData.length; i++) {
+            doHelp(i, resultData[i]);
+        }
+
+    });
+
+};
+
+// 等到所有promises都已敲定（settled）（每个promise都已兑现（fulfilled）或已拒绝（rejected））。
+// 返回一个promise，该promise在所有promise完成后完成。并带有一个对象数组，每个对象对应每个promise的结果。
+Promise.allSettled = function (iterable) {
+
+    return new Promise(function (resolve, reject) {
+
+        if (!isArray(iterable)) {
+            return reject(new TypeError('undefined is not iterable (cannot read property Symbol(Symbol.iterator))'));
+        }
+
+        var resultData = Array.prototype.slice.call(iterable), num = 0;
+
+        if (resultData.length == 0) resolve([]);
+
+        var doHelp = function (index, item) {
+            if (item.__state !== "pending") {
+
+                num += 1;
+
+                resultData[index] = {
+                    status: item.__state
+                };
+
+                if (item.__state == 'fulfilled') {
+                    resultData[index].value = item.__value;
+                } else {
+                    resultData[index].reason = item.__value;
+                }
+
+                if (num == resultData.length) {
+                    resolve(resultData);
+                }
+
+            } else {
+                setTimeout(function () { doHelp(index, item); });
+            }
+        };
+
+        for (var i = 0; i < resultData.length; i++) {
+            doHelp(i, resultData[i]);
+        }
+
+    });
+
+};
+// 收一个Promise对象的集合，
+// 当其中的一个 promise 成功，
+// 就返回那个成功的promise的值。
+Promise.any = function (iterable) {
+
+    return new Promise(function (resolve, reject) {
+
+        if (!isArray(iterable)) {
+            return reject(new TypeError('undefined is not iterable (cannot read property Symbol(Symbol.iterator))'));
+        }
+
+        var num = 0;
+
+        if (iterable.length == 0) resolve(undefined);
+
+        var doHelp = function (index, item) {
+            if (item.__state !== "pending") {
+
+                num += 1;
+
+                if (item.__state == 'rejected') {
+
+                    if (num == iterable.length) {
+
+                        // 为了兼容性，我们放弃AggregateError
+                        return reject(new Error('All promises were rejected'));
+                    }
+
+                } else {
+
+                    // 遇到第一个成功的，标记解决即可
+                    resolve(item.__value);
+
+                }
+
+            } else {
+                setTimeout(function () { doHelp(index, item); });
+            }
+        };
+
+        for (var i = 0; i < iterable.length; i++) {
+            doHelp(i, iterable[i]);
+        }
+
+    });
+};
+
+// 当iterable参数里的任意一个子promise被成功或失败后，
+// 父promise马上也会用子promise的成功返回值或失败详情作为参数调用父promise绑定的相应句柄，
+// 并返回该promise对象。
+Promise.race = function (iterable) {
+
+    return new Promise(function (resolve, reject) {
+
+        if (!isArray(iterable)) {
+            return reject(new TypeError('undefined is not iterable (cannot read property Symbol(Symbol.iterator))'));
+        }
+
+        if (iterable.length == 0) resolve(undefined);
+
+        var doHelp = function (index, item) {
+            if (item.__state !== "pending") {
+
+                if (item.__state == 'rejected') {
+                    reject(item.__value);
+                } else {
+                    resolve(item.__value);
+                }
+
+            } else {
+                setTimeout(function () { doHelp(index, item); });
+            }
+        };
+
+        for (var i = 0; i < iterable.length; i++) {
+            doHelp(i, iterable[i]);
+        }
+
+    });
+};
+
+// 如果Promise不存在
+if (!('Promise' in globalNAMESPACE)) {
+    globalNAMESPACE['Promise'] = Promise;
+}
+
+// 由于不同浏览器对一些具体的方法兼容不一样
+// （比如一些浏览器支持Promise，可是不支持某个方法，需要对该方法进行兼容）
+// 需要进一步嗅探
+// 推迟支持
+
   
     return __etcpack__scope_bundle__;
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/app.module.ts
+// Original file:./node_modules/@hai2007/polyfill/.inner/globalNAMESPACE.js
 /*****************************************************************/
 window.__etcpack__bundleSrc__['5']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    var _dec, _class2;
+    var globalNAMESPACE = (function () {
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+    // 浏览器环境
+    if (typeof window !== 'undefined') return window;
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+    // nodejs环境
+    if (typeof global !== 'undefined') return global;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+    throw new Error('The current environment is not known!');
 
-__etcpack__scope_args__=window.__etcpack__getBundle('1');
-var Module=__etcpack__scope_args__.Module;
- // 组件
+})();
 
-__etcpack__scope_args__=window.__etcpack__getBundle('6');
-var AppComponent =__etcpack__scope_args__.default;
- // 指令
+// 获取当前环境的全局变量
+__etcpack__scope_bundle__.default= globalNAMESPACE;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('22');
-var uiBind =__etcpack__scope_args__.default;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('23');
-var uiModel =__etcpack__scope_args__.default;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('25');
-var uiOn =__etcpack__scope_args__.default;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('26');
-var uiDragdrop =__etcpack__scope_args__.default;
-
-
-var _class = (_dec = Module({
-  declarations: [AppComponent, uiBind, uiModel, uiOn, uiDragdrop],
-  imports: [],
-  exports: [],
-  bootstrap: AppComponent
-}), _dec(_class2 = /*#__PURE__*/_createClass(function _class2() {
-  _classCallCheck(this, _class2);
-})) || _class2);
-
-__etcpack__scope_bundle__.default=_class;
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./src/App/index.ts
-/*****************************************************************/
-window.__etcpack__bundleSrc__['6']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    var _dec, _class2;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-__etcpack__scope_args__=window.__etcpack__getBundle('1');
-var Component=__etcpack__scope_args__.Component;
-var ref=__etcpack__scope_args__.ref;
-var mountComponent=__etcpack__scope_args__.mountComponent;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('7');
-var isFunction=__etcpack__scope_args__.isFunction;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('17');
-var style =__etcpack__scope_args__.default;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('18');
-var template =__etcpack__scope_args__.default;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('19');
-var lazyLoad =__etcpack__scope_args__.default;
-
-
-var _class = (_dec = Component({
-  template: template,
-  styles: [style]
-}), _dec(_class2 = /*#__PURE__*/function () {
-  function _class2() {
-    _classCallCheck(this, _class2);
-
-    _defineProperty(this, "view", void 0);
-  }
-
-  _createClass(_class2, [{
-    key: "$setup",
-    value: function $setup() {
-      return {
-        // 记录当前选中的图层
-        currentIndex: ref(-1),
-        // 记录当前大屏内容
-        view: ref({
-          value: {
-            name: "大屏编辑器"
-          }
-        })
-      };
-    }
-  }, {
-    key: "useGraph",
-    value: function useGraph(graph) {
-      var graphInstance = globalThis[graph.name];
-
-      if (isFunction(graphInstance)) {
-        // 先准备好挂载点
-        var el = document.createElement('div');
-        document.getElementById('container').appendChild(el); // 然后对挂载点进行初始化
-
-        el.style.position = 'absolute';
-        el.style.left = graph.position.left + "%";
-        el.style.top = graph.position.top + "%";
-        el.style.width = graph.position.width + "%";
-        el.style.height = graph.position.height + "%"; // 最后调用绘制
-
-        graphInstance(el, graph.config, {});
-      } else {
-        alert('非常抱歉，由于插件[' + graph.name + ']未正确安装，此次运行被中断，请安装此插件~');
-      }
-    } // 加载图表插件
-
-  }, {
-    key: "loadGraph",
-    value: function loadGraph(graph) {
-      var head = document.getElementsByTagName('head')[0];
-      var script = document.createElement('script');
-      var host = window.location.host;
-
-      if (/^127\.0\.0\.1/.test(host) || /^localhost/.test(host)) {
-        script.src = "/@file" + graph.url + "/index.js";
-      } else {
-        script.src = "file://" + graph.url + "/index.js";
-      }
-
-      head.appendChild(script);
-    }
-  }, {
-    key: "useLayer",
-    value: function useLayer() {
-      // target就表示新打开的弹框对象，你可以通过此来调用弹框的方法等实现数据传递
-      this.openDialog('layer').then(function (target) {
-        target.component.init({
-          el: target.el
-        });
-      });
-    }
-  }, {
-    key: "useTemplate",
-    value: function useTemplate() {
-      this.openDialog('template').then(function (target) {
-        target.component.init({
-          el: target.el
-        });
-      });
-    }
-  }, {
-    key: "openDialog",
-    value: function openDialog(dialogName) {
-      var _this = this;
-
-      return new Promise(function (resolve, reject) {
-        lazyLoad[dialogName]().then(function (data) {
-          var li = document.createElement('li');
-          li.style.position = 'fixed';
-          li.style.left = '0';
-          li.style.top = '0';
-          li.style.background = '#a081815c';
-          li.style.width = '100vw';
-          li.style.height = '100vh';
-          document.getElementById('dialog').appendChild(li);
-          resolve({
-            component: mountComponent(li, data["default"], _this['_module']),
-            el: li
-          });
-        });
-      });
-    }
-  }, {
-    key: "$mounted",
-    value: function $mounted() {
-      var _this2 = this;
-
-      // 调整显示位置大小
-      globalThis.doResize(); // 通知主线程页面加载完毕
-
-      globalThis.nodeRequire('electron').ipcRenderer.send("view-ready"); // 启动事件监听主进程
-
-      globalThis.nodeRequire('electron').ipcRenderer // 文件 / 安装
-      .on("install-graph", function (event, graph) {
-        _this2.loadGraph(graph);
-      }) // 文件 / 打开
-      .on("open-view", function (event, view) {
-        _this2.view = view;
-
-        for (var index = 0; index < view.value.graphs.length; index++) {
-          _this2.useGraph(view.value.graphs[index]);
-        }
-      }) // 运行 / 打包
-      .on("run-pkg", function (event) {
-        globalThis.nodeRequire('electron').ipcRenderer.send("run-pkg", _this2.view);
-      });
-    }
-  }]);
-
-  return _class2;
-}()) || _class2);
-
-__etcpack__scope_bundle__.default=_class;
   
     return __etcpack__scope_bundle__;
 }
@@ -2152,34 +2286,34 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/type.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['7']=function(){
+window.__etcpack__bundleSrc__['6']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('8');
+    __etcpack__scope_args__=window.__etcpack__getBundle('7');
 var _isObject =__etcpack__scope_args__.default;
 
 
-__etcpack__scope_args__=window.__etcpack__getBundle('9');
+__etcpack__scope_args__=window.__etcpack__getBundle('8');
 var _isBoolean =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('11');
+__etcpack__scope_args__=window.__etcpack__getBundle('10');
 var _isNumber =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('12');
+__etcpack__scope_args__=window.__etcpack__getBundle('11');
 var _isString =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('13');
+__etcpack__scope_args__=window.__etcpack__getBundle('12');
 var _isSymbol =__etcpack__scope_args__.default;
 
 
-__etcpack__scope_args__=window.__etcpack__getBundle('14');
+__etcpack__scope_args__=window.__etcpack__getBundle('13');
 var _isFunction =__etcpack__scope_args__.default;
 
 
-__etcpack__scope_args__=window.__etcpack__getBundle('15');
+__etcpack__scope_args__=window.__etcpack__getBundle('14');
 var _isError =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('16');
+__etcpack__scope_args__=window.__etcpack__getBundle('15');
 var _isPlainObject =__etcpack__scope_args__.default;
 
 
@@ -2228,7 +2362,7 @@ __etcpack__scope_bundle__.isComment = function (input) { return domTypeHelp([8],
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isObject.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['8']=function(){
+window.__etcpack__bundleSrc__['7']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     /**
@@ -2249,10 +2383,10 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isBoolean.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['9']=function(){
+window.__etcpack__bundleSrc__['8']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('10');
+    __etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
 
@@ -2274,7 +2408,7 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/getType.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['10']=function(){
+window.__etcpack__bundleSrc__['9']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var toString = Object.prototype.toString;
@@ -2299,10 +2433,10 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isNumber.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['11']=function(){
+window.__etcpack__bundleSrc__['10']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('10');
+    __etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
 
@@ -2326,10 +2460,10 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isString.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['12']=function(){
+window.__etcpack__bundleSrc__['11']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('10');
+    __etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
 
@@ -2351,10 +2485,10 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isSymbol.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['13']=function(){
+window.__etcpack__bundleSrc__['12']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('10');
+    __etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
 
@@ -2376,13 +2510,13 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isFunction.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['14']=function(){
+window.__etcpack__bundleSrc__['13']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('10');
+    __etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('8');
+__etcpack__scope_args__=window.__etcpack__getBundle('7');
 var isObject =__etcpack__scope_args__.default;
 
 
@@ -2409,13 +2543,13 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isError.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['15']=function(){
+window.__etcpack__bundleSrc__['14']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('16');
+    __etcpack__scope_args__=window.__etcpack__getBundle('15');
 var isPlainObject =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('10');
+__etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
 
@@ -2443,10 +2577,10 @@ __etcpack__scope_bundle__.default= function (value) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/.inner/type/isPlainObject.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['16']=function(){
+window.__etcpack__bundleSrc__['15']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('10');
+    __etcpack__scope_args__=window.__etcpack__getBundle('9');
 var getType =__etcpack__scope_args__.default;
 
 
@@ -2480,12 +2614,213 @@ __etcpack__scope_bundle__.default= function (value) {
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/App/index.scss
+// Original file:./node_modules/@hai2007/polyfill/.inner/Promise/doResolve.js
+/*****************************************************************/
+window.__etcpack__bundleSrc__['16']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_args__=window.__etcpack__getBundle('6');
+var isFunction=__etcpack__scope_args__.isFunction;
+var isObject=__etcpack__scope_args__.isObject;
+
+
+__etcpack__scope_bundle__.changeState = function (data, state) {
+
+    // 更改状态
+    this.__state = state;
+    this.__value = data;
+
+    // 由于状态改变了，触发对then，finnaly，catch等的执行更新
+    this.$$triggerEvent();
+
+};
+
+__etcpack__scope_bundle__.triggerEvent = function () {
+
+    // 这个方法的任务就是把__hocks中记录的方法依次执行了
+    // 什么时候会停止？两种情况：
+    // 1.队列执行完了
+    // 2.遇到其中一个执行方法返回Promise
+
+    var currentHock = null;
+
+    // 同意状态就去寻找下一个onFulfilled
+    // 拒绝状态就去寻找下一个onRejected
+    // 数组下标0和1分别记录这两个状态，因此先根据状态确定下标即可
+    var index = this.__state == 'fulfilled' ? 0 : 1, i;
+
+    // 可能找到，可能到结尾都没有找到
+    while (this.__hocks.length > 0) {
+
+        if (isFunction(this.__hocks[0][index])) {
+            currentHock = this.__hocks.shift();
+            break;
+        }
+
+        // 对于路过的finally执行一下
+        else if (isFunction(this.__hocks[0][2])) {
+            this.__hocks[0][2]();
+        }
+
+        this.__hocks.shift();
+
+    }
+
+    // 如果找到了
+    if (currentHock !== null) {
+        var result = currentHock[index](this.__value);
+
+        // 如果是Promise
+        if (isObject(result) && result.constructor === this.constructor) {
+            for (var i = 0; i < this.__hocks.length; i++) {
+                result.__hocks.push(this.__hocks[i]);
+                if (result.__state != 'pending') result.$$triggerEvent();
+            }
+
+            this.then = function (onFulfilled, onRejected) {
+
+                result.then(onFulfilled, onRejected);
+            };
+            this.catch = function (onRejected) {
+
+                result.catch(onRejected);
+            };
+            this.finally = function (callback) {
+
+                result.finally(callback);
+            };
+
+        }
+
+        // 否则
+        else {
+
+            this.__value = result;
+            this.__state = "fulfilled";
+            this.$$triggerEvent();
+
+        }
+
+    }
+
+};
+
+__etcpack__scope_bundle__.doResolve = function (doback, that) {
+
+    // 防止重复修改状态
+    var done = false;
+
+    try {
+        doback(function (value) {
+            if (done) return; done = true;
+            that.$$changeState(value, 'fulfilled');
+
+        }, function (reason) {
+            if (done) return; done = true;
+            that.$$changeState(reason, 'rejected');
+
+        });
+    } catch (error) {
+        if (done) return; done = true;
+        that.$$changeState(error, 'rejected');
+    }
+
+};
+
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/app.module.ts
 /*****************************************************************/
 window.__etcpack__bundleSrc__['17']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "\n .view>header{\n\nline-height: 40px;\n\nbackground-color: black;\n\ncolor: #fff;\n\ntext-align: center;\n\n}\n\n .view>header>h2{\n\ndisplay: inline-block;\n\nbackground-image: url('./image/logo.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center left;\n\npadding-left: 40px;\n\nfont-size: 14px;\n\nfont-weight: 800;\n\nheight: 40px;\n\nvertical-align: top;\n\n}\n\n .view>header>ul{\n\nposition: absolute;\n\nright: 0;\n\ntop: 0;\n\nline-height: 1em;\n\n}\n\n .view>header>ul>li{\n\ndisplay: inline-block;\n\nbackground-color: white;\n\ncolor: black;\n\nfont-size: 12px;\n\nmargin: 5px;\n\npadding-left: 20px;\n\npadding-right: 5px;\n\nline-height: 20px;\n\nbackground-image: url('./image/add.png');\n\nbackground-repeat: no-repeat;\n\nbackground-position: 3px center;\n\nbackground-size: 15px auto;\n\ncursor: pointer;\n\n}\n\n .view>div{\n\nfont-size: 0;\n\nwhite-space: nowrap;\n\noverflow: hidden;\n\n}\n\n .view>div>div{\n\nwhite-space: normal;\n\ndisplay: inline-block;\n\noverflow: auto;\n\nheight: calc(100vh - 40px);\n\nfont-size: 16px;\n\n}\n\n .view>div>div.layer, .view>div>div.config{\n\nbackground-color: #ffffff;\n\nwidth: 220px;\n\n}\n\n .view>div>div.layer>h4, .view>div>div.config>h4{\n\nbackground-color: black;\n\ncolor: #fff;\n\nfont-size: 13px;\n\nline-height: 35px;\n\ntext-align: center;\n\n}\n\n .view>div>div.config{\n\ndisplay: none;\n\n}\n\n .view>div>div.config[show='yes']{\n\ndisplay: inline-block;\n\n}\n\n .view>div>div.main-view{\n\nwidth: calc(100vw - 440px);\n\nposition: relative;\n\nbackground-image: url('./image/mosaic.png');\n\nbackground-size: 20px 20px;\n\noverflow-x: hidden;\n\n}\n\n .view>div>div.main-view>#container{\n\nwidth: 1920px;\n\nheight: 1080px;\n\ntransform-origin: left top;\n\nposition: absolute;\n\nleft: 20px;\n\ntop: 20px;\n\nbackground-color: white;\n\noutline: 2px dashed black;\n\n}\n\n #dialog{\n\nposition: fixed;\n\nleft: 0;\n\ntop: 0;\n\n}\n"
+    var _dec, _class2;
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+__etcpack__scope_args__=window.__etcpack__getBundle('1');
+var Module=__etcpack__scope_args__.Module;
+ // 组件
+
+__etcpack__scope_args__=window.__etcpack__getBundle('18');
+var AppComponent =__etcpack__scope_args__.default;
+ // 指令
+
+__etcpack__scope_args__=window.__etcpack__getBundle('21');
+var uiBind =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('22');
+var uiModel =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('24');
+var uiOn =__etcpack__scope_args__.default;
+
+
+var _class = (_dec = Module({
+  declarations: [AppComponent, uiBind, uiModel, uiOn],
+  imports: [],
+  exports: [],
+  bootstrap: AppComponent
+}), _dec(_class2 = /*#__PURE__*/_createClass(function _class2() {
+  _classCallCheck(this, _class2);
+})) || _class2);
+
+__etcpack__scope_bundle__.default=_class;
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/App/index.ts
+/*****************************************************************/
+window.__etcpack__bundleSrc__['18']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    var _dec, _class2;
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+__etcpack__scope_args__=window.__etcpack__getBundle('1');
+var Component=__etcpack__scope_args__.Component;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('19');
+var style =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('20');
+var template =__etcpack__scope_args__.default;
+
+
+var _class = (_dec = Component({
+  selector: "app-root",
+  template: template,
+  styles: [style]
+}), _dec(_class2 = /*#__PURE__*/_createClass(function _class2() {
+  _classCallCheck(this, _class2);
+})) || _class2);
+
+__etcpack__scope_bundle__.default=_class;
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/App/index.scss
+/*****************************************************************/
+window.__etcpack__bundleSrc__['19']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_bundle__.default= "\n .help{\n\ntext-align: center;\n\nmargin-top: 100px;\n\n}\n\n .help>div.logo{\n\nbackground-image: url('./logo.png');\n\nheight: 200px;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center;\n\nbackground-size: auto 80%;\n\n}\n\n .help>div.links>a{\n\nfont-size: 14px;\n\nfont-weight: 800;\n\npadding:10px;\n\n}\n"
   
     return __etcpack__scope_bundle__;
 }
@@ -2493,28 +2828,10 @@ window.__etcpack__bundleSrc__['17']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./src/App/index.html
 /*****************************************************************/
-window.__etcpack__bundleSrc__['18']=function(){
+window.__etcpack__bundleSrc__['20']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "<div class='view'>\n    <header>\n        <h2 ui-bind=\"view.value.name\"></h2>\n        <ul>\n            <li class=\"add\" ui-on:click=\"useLayer\">\n                图层\n            </li>\n            <li class=\"add\" ui-on:click=\"useTemplate\">\n                模板\n            </li>\n        </ul>\n    </header>\n    <div>\n        <div class=\"config\" ui-bind:show=\"currentIndex==-1?'yes':'no'\">\n            <h4>\n                全局配置\n            </h4>\n        </div>\n        <div class=\"config\" ui-bind:show=\"currentIndex!=-1?'yes':'no'\">\n            <h4>\n                图层配置\n            </h4>\n        </div>\n        <div class=\"main-view\">\n            <div id=\"container\"></div>\n        </div>\n        <div class=\"layer\">\n            <h4>\n                图层\n            </h4>\n        </div>\n    </div>\n</div>\n\n<!-- 弹框 -->\n<ul id=\"dialog\"></ul>\n"
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./src/dialogs/lazy-load.js
-/*****************************************************************/
-window.__etcpack__bundleSrc__['19']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= {
-  layer: function layer() {
-    return window.__etcpack__getLazyBundle('./build/main-bundle1.js','20');
-  },
-  template: function template() {
-    return window.__etcpack__getLazyBundle('./build/main-bundle2.js','21');
-  }
-};
+    __etcpack__scope_bundle__.default= "<div class=\"help\">\r\n    <div class=\"logo\"></div>\r\n    <div class=\"links\">\r\n        <a href=\"https://nefbl.github.io/api/\" target=\"_blank\">文档</a>\r\n        |\r\n        <a href=\"https://github.com/nefbl/nefbl\" target=\"_blank\">源码</a>\r\n        |\r\n        <a href=\"https://hai2007.gitee.io/sweethome/\" target=\"_blank\">作者</a>\r\n    </div>\r\n</div>\r\n"
   
     return __etcpack__scope_bundle__;
 }
@@ -2522,7 +2839,7 @@ window.__etcpack__bundleSrc__['19']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-bind.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['22']=function(){
+window.__etcpack__bundleSrc__['21']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2536,7 +2853,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('7');
+__etcpack__scope_args__=window.__etcpack__getBundle('6');
 var isString=__etcpack__scope_args__.isString;
 
 
@@ -2584,7 +2901,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-model.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['23']=function(){
+window.__etcpack__bundleSrc__['22']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2599,7 +2916,7 @@ __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 var setValue=__etcpack__scope_args__.setValue;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
+__etcpack__scope_args__=window.__etcpack__getBundle('23');
 var xhtml =__etcpack__scope_args__.default;
 
 
@@ -2636,7 +2953,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/browser/xhtml.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['24']=function(){
+window.__etcpack__bundleSrc__['23']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     /*!
@@ -2951,7 +3268,7 @@ __etcpack__scope_bundle__.default= {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-on.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['25']=function(){
+window.__etcpack__bundleSrc__['24']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2965,7 +3282,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
+__etcpack__scope_args__=window.__etcpack__getBundle('23');
 var xhtml =__etcpack__scope_args__.default;
 
 /**
@@ -3006,72 +3323,6 @@ var _class = (_dec = Directive({
       }
 
       xhtml.bind(el, types[0], callback);
-    }
-  }]);
-
-  return _class2;
-}()) || _class2);
-
-__etcpack__scope_bundle__.default=_class;
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./src/directive/ui-dragdrop.ts
-/*****************************************************************/
-window.__etcpack__bundleSrc__['26']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    var _dec, _class2;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-__etcpack__scope_args__=window.__etcpack__getBundle('1');
-var Directive=__etcpack__scope_args__.Directive;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
-var xhtml =__etcpack__scope_args__.default;
-
-
-var _class = (_dec = Directive({
-  selector: "ui-dragdrop"
-}), _dec(_class2 = /*#__PURE__*/function () {
-  function _class2() {
-    _classCallCheck(this, _class2);
-  }
-
-  _createClass(_class2, [{
-    key: "$inserted",
-    value: function $inserted(el) {
-      //绑定鼠标左键按下事件
-      xhtml.bind(el, 'mousedown', function mousedown(event) {
-        //解决浏览器全选无法拖拽弹框
-        el.setCapture && el.setCapture(); // 寻找窗口轮廓
-
-        var _el = el.parentNode;
-        var lf = event.clientX;
-        var tp = event.clientY;
-        var left = xhtml.getStyle(_el, 'left').replace('px', '');
-        var top = xhtml.getStyle(_el, 'top').replace('px', ''); //绑定鼠标移动事件
-
-        function mousemove(event) {
-          _el.style.left = left - -event.clientX - lf + 'px';
-          _el.style.top = top - -event.clientY - tp + 'px';
-        }
-
-        xhtml.bind(document, 'mousemove', mousemove); //绑定鼠标松开事件,清除鼠标移动绑定
-
-        xhtml.bind(document, 'mouseup', function (event) {
-          xhtml.unbind(document, 'mousemove', mousemove);
-          _el.releaseCapture && _el.releaseCapture();
-          return false;
-        });
-      });
     }
   }]);
 

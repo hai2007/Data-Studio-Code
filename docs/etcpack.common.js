@@ -1,3 +1,4 @@
+const pkg = JSON.parse(require('fs').readFileSync('./package.json'));
 const CommonjsPlug = require('@etcpack/commonjs-plug');
 
 module.exports = {
@@ -6,7 +7,7 @@ module.exports = {
     entry: './src/main.ts',
 
     // 打包出口
-    output: 'build/main.js',
+    output: 'build/main@v' + pkg.version + '.js',
 
     // 对导入路径重定向
     redirect: {
@@ -21,11 +22,13 @@ module.exports = {
         handler: ['@etcpack/plain-loader']
     }, {
         test: /\.(ts|js)$/,
-        handler: [function (source) {
+        handler: [function(source) {
             if (/node_modules/.test(this.filepath) && !/sprout-ui/.test(this.filepath)) return source;
             return require('@babel/core').transformFileSync(this.filepath, require('./babel.config')).code;
         }]
     }],
 
-    plug: [new CommonjsPlug()]
+    plug: [
+        new CommonjsPlug()
+    ]
 };

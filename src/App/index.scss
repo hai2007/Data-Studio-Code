@@ -1,3 +1,108 @@
 .view {
-    
+
+    &>header {
+        line-height: 40px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+
+        &>h2 {
+            display: inline-block;
+            background-image: url('./image/logo.png');
+            background-size: auto 70%;
+            background-repeat: no-repeat;
+            background-position: center left;
+            padding-left: 40px;
+            font-size: 14px;
+            font-weight: 800;
+            height: 40px;
+            vertical-align: top;
+        }
+
+        &>ul {
+            position: absolute;
+            right: 0;
+            top: 0;
+            line-height: 1em;
+
+            &>li {
+                display: inline-block;
+                background-color: white;
+                color: black;
+                font-size: 12px;
+                margin: 5px;
+                padding-left: 20px;
+                padding-right: 5px;
+                line-height: 20px;
+                background-image: url('./image/add.png');
+                background-repeat: no-repeat;
+                background-position: 3px center;
+                background-size: 15px auto;
+                cursor: pointer;
+            }
+        }
+    }
+
+    &>div {
+        font-size: 0;
+        white-space: nowrap;
+        overflow: hidden;
+
+        &>div {
+            white-space: normal;
+            display: inline-block;
+            overflow: auto;
+            height: calc(100vh - 40px);
+            font-size: 16px;
+
+            &.layer,
+            &.config {
+                background-color: #ffffff;
+                width: 220px;
+
+                &>h4 {
+                    background-color: black;
+                    color: #fff;
+                    font-size: 13px;
+                    line-height: 35px;
+                    text-align: center;
+                }
+            }
+
+            &.layer {}
+
+            &.config {
+                display: none;
+
+                &[show='yes'] {
+                    display: inline-block;
+                }
+            }
+
+            &.main-view {
+                width: calc(100vw - 440px);
+                position: relative;
+                background-image: url('./image/mosaic.png');
+                background-size: 20px 20px;
+                overflow-x: hidden;
+
+                &>#container {
+                    width: 1920px;
+                    height: 1080px;
+                    transform-origin: left top;
+                    position: absolute;
+                    left: 20px;
+                    top: 20px;
+                    background-color: white;
+                    outline: 2px dashed black;
+                }
+            }
+        }
+    }
+}
+
+#dialog {
+    position: fixed;
+    left: 0;
+    top: 0;
 }

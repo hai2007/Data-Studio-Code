@@ -1,0 +1,15 @@
+{
+    "name": "大屏模板测试文件",
+    "graphs": [
+        {
+            "position": {
+                "left": 0,
+                "top": 0,
+                "width": 100,
+                "height": 100
+            },
+            "name": "GraphTemplate",
+            "config": {}
+        }
+    ]
+}

@@ -1,10 +1,11 @@
 const { app, BrowserWindow } = require('electron');
+const { initRootFolder } = require('./node.js/rootFolder');
+
+initRootFolder();
 
 function createWindow() {
     // 创建浏览器窗口
     let win = new BrowserWindow({
-        width: 700,
-        height: 500,
         resizable: true,
         frame: true,
         webPreferences: {
@@ -21,6 +22,9 @@ function createWindow() {
             webSecurity: false
         }
     });
+
+    //  默认最大化
+    win.maximize();
 
     // 开发模式
     if ((process.env.NODE_ENV + "").trim() == 'development') {
@@ -41,6 +45,9 @@ app.whenReady().then(() => {
 
     // 创建主界面
     let win = createWindow();
+
+    // 引入菜单
+    require('./node.js/menu.js')(win);
 
     // 监听来自主界面的请求
     require('./node.js/ipcMain.on.js')(win);

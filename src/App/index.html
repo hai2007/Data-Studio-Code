@@ -1,3 +1,36 @@
 <div class='view'>
-    
+    <header>
+        <h2 ui-bind="view.value.name"></h2>
+        <ul>
+            <li class="add" ui-on:click="useLayer">
+                图层
+            </li>
+            <li class="add" ui-on:click="useTemplate">
+                模板
+            </li>
+        </ul>
+    </header>
+    <div>
+        <div class="config" ui-bind:show="currentIndex==-1?'yes':'no'">
+            <h4>
+                全局配置
+            </h4>
+        </div>
+        <div class="config" ui-bind:show="currentIndex!=-1?'yes':'no'">
+            <h4>
+                图层配置
+            </h4>
+        </div>
+        <div class="main-view">
+            <div id="container"></div>
+        </div>
+        <div class="layer">
+            <h4>
+                图层
+            </h4>
+        </div>
+    </div>
 </div>
+
+<!-- 弹框 -->
+<ul id="dialog"></ul>

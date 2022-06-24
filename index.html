@@ -14,10 +14,19 @@
         delete window.exports;
         delete window.module;
 
+        // 屏幕缩放适配
+        function doResize() {
+            var containerEl = document.getElementById('container');
+            if (containerEl) {
+                window.scaleVal = (window.innerWidth - 480) / 1920;
+                containerEl.style.transform = 'scale(' + window.scaleVal + ', ' + window.scaleVal + ')';
+            }
+        }
+
     </script>
 </head>
 
-<body>
+<body onresize="doResize()">
 
     <div id="root"></div>
 
