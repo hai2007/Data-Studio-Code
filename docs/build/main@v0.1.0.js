@@ -2753,18 +2753,21 @@ __etcpack__scope_args__=window.__etcpack__getBundle('18');
 var AppComponent =__etcpack__scope_args__.default;
  // 指令
 
-__etcpack__scope_args__=window.__etcpack__getBundle('21');
+__etcpack__scope_args__=window.__etcpack__getBundle('24');
 var uiBind =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('22');
+__etcpack__scope_args__=window.__etcpack__getBundle('25');
 var uiModel =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
+__etcpack__scope_args__=window.__etcpack__getBundle('27');
 var uiOn =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('28');
+var uiLazy =__etcpack__scope_args__.default;
 
 
 var _class = (_dec = Module({
-  declarations: [AppComponent, uiBind, uiModel, uiOn],
+  declarations: [AppComponent, uiBind, uiModel, uiOn, uiLazy],
   imports: [],
   exports: [],
   bootstrap: AppComponent
@@ -2785,29 +2788,76 @@ window.__etcpack__bundleSrc__['18']=function(){
     var __etcpack__scope_args__;
     var _dec, _class2;
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Component=__etcpack__scope_args__.Component;
+var ref=__etcpack__scope_args__.ref;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('6');
+var isFunction=__etcpack__scope_args__.isFunction;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('19');
-var style =__etcpack__scope_args__.default;
+var urlFormat =__etcpack__scope_args__.default;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('20');
+var style =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('21');
 var template =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('22');
+var pages =__etcpack__scope_args__.default;
 
 
 var _class = (_dec = Component({
   selector: "app-root",
   template: template,
   styles: [style]
-}), _dec(_class2 = /*#__PURE__*/_createClass(function _class2() {
-  _classCallCheck(this, _class2);
-})) || _class2);
+}), _dec(_class2 = /*#__PURE__*/function () {
+  function _class2() {
+    _classCallCheck(this, _class2);
+
+    _defineProperty(this, "currentPage", void 0);
+  }
+
+  _createClass(_class2, [{
+    key: "$setup",
+    value: function $setup() {
+      return {
+        currentPage: ref(null)
+      };
+    }
+  }, {
+    key: "$mounted",
+    value: function $mounted() {
+      var _this = this;
+
+      // 地址栏信息
+      var urlObj = urlFormat(window.location.href); // 获取当前页面
+
+      var page = pages[urlObj.router[0]]; // 如果页面不存在
+
+      if (!isFunction(page)) {
+        // 地址错误，跳转到首页
+        page = pages['home'];
+      } // 打开页面
+
+
+      page().then(function (data) {
+        _this.currentPage = data["default"];
+      });
+    }
+  }]);
+
+  return _class2;
+}()) || _class2);
 
 __etcpack__scope_bundle__.default=_class;
   
@@ -2815,12 +2865,44 @@ __etcpack__scope_bundle__.default=_class;
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/App/index.scss
+// Original file:./src/tool/urlFormat.ts
 /*****************************************************************/
 window.__etcpack__bundleSrc__['19']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "\n .help{\n\ntext-align: center;\n\nmargin-top: 100px;\n\n}\n\n .help>div.logo{\n\nbackground-image: url('./logo.png');\n\nheight: 200px;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center;\n\nbackground-size: auto 80%;\n\n}\n\n .help>div.links>a{\n\nfont-size: 14px;\n\nfont-weight: 800;\n\npadding:10px;\n\n}\n"
+    __etcpack__scope_bundle__.default= function (url) {
+  var splitTemp = url.split('?');
+  var routerTemp = (splitTemp[0] + "#").split("#")[1].replace(/^\//, '').replace(/\/$/, '').split('/');
+  var paramTemp = splitTemp[1] || "";
+  var paramResult, paramArray;
+
+  if (paramTemp == "") {
+    paramResult = {};
+  } else {
+    paramArray = paramTemp.split("&"), paramResult = {};
+    paramArray.forEach(function (item) {
+      var temp = item.split("=");
+      paramResult[temp[0]] = temp[1];
+    });
+  }
+
+  var resultData = {
+    router: routerTemp[0] == '' ? [] : routerTemp,
+    params: paramResult
+  };
+  return resultData;
+}
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/App/index.scss
+/*****************************************************************/
+window.__etcpack__bundleSrc__['20']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_bundle__.default= ""
   
     return __etcpack__scope_bundle__;
 }
@@ -2828,10 +2910,25 @@ window.__etcpack__bundleSrc__['19']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./src/App/index.html
 /*****************************************************************/
-window.__etcpack__bundleSrc__['20']=function(){
+window.__etcpack__bundleSrc__['21']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "<div class=\"help\">\r\n    <div class=\"logo\"></div>\r\n    <div class=\"links\">\r\n        <a href=\"https://nefbl.github.io/api/\" target=\"_blank\">文档</a>\r\n        |\r\n        <a href=\"https://github.com/nefbl/nefbl\" target=\"_blank\">源码</a>\r\n        |\r\n        <a href=\"https://hai2007.gitee.io/sweethome/\" target=\"_blank\">作者</a>\r\n    </div>\r\n</div>\r\n"
+    __etcpack__scope_bundle__.default= "<div ui-lazy='currentPage'></div>\n"
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/pages/lazy-load.js
+/*****************************************************************/
+window.__etcpack__bundleSrc__['22']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_bundle__.default= {
+  "home": function home() {
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.0-bundle1.js','23');
+  }
+};
   
     return __etcpack__scope_bundle__;
 }
@@ -2839,7 +2936,7 @@ window.__etcpack__bundleSrc__['20']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-bind.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['21']=function(){
+window.__etcpack__bundleSrc__['24']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2901,7 +2998,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-model.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['22']=function(){
+window.__etcpack__bundleSrc__['25']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2916,7 +3013,7 @@ __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 var setValue=__etcpack__scope_args__.setValue;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('23');
+__etcpack__scope_args__=window.__etcpack__getBundle('26');
 var xhtml =__etcpack__scope_args__.default;
 
 
@@ -2953,7 +3050,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/browser/xhtml.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['23']=function(){
+window.__etcpack__bundleSrc__['26']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     /*!
@@ -3268,7 +3365,7 @@ __etcpack__scope_bundle__.default= {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-on.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['24']=function(){
+window.__etcpack__bundleSrc__['27']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -3282,7 +3379,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('23');
+__etcpack__scope_args__=window.__etcpack__getBundle('26');
 var xhtml =__etcpack__scope_args__.default;
 
 /**
@@ -3323,6 +3420,50 @@ var _class = (_dec = Directive({
       }
 
       xhtml.bind(el, types[0], callback);
+    }
+  }]);
+
+  return _class2;
+}()) || _class2);
+
+__etcpack__scope_bundle__.default=_class;
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./node_modules/sprout-ui/nefbl/directive/ui-lazy.ts
+/*****************************************************************/
+window.__etcpack__bundleSrc__['28']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    var _dec, _class2;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+__etcpack__scope_args__=window.__etcpack__getBundle('1');
+var Directive=__etcpack__scope_args__.Directive;
+var mountComponent=__etcpack__scope_args__.mountComponent;
+
+
+var _class = (_dec = Directive({
+  selector: "ui-lazy"
+}), _dec(_class2 = /*#__PURE__*/function () {
+  function _class2() {
+    _classCallCheck(this, _class2);
+  }
+
+  _createClass(_class2, [{
+    key: "$update",
+    value: function $update(el, binding) {
+      if (binding.value) {
+        el.innerHTML = "";
+        mountComponent(el, binding.value, this['_module']);
+      }
     }
   }]);
 
