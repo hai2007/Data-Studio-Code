@@ -1,7 +1,7 @@
 {
   "name": "data-studio-code",
   "version": "0.1.0-alpha.0",
-  "description": "数据可视化编辑器，基于image2d、image3d、echarts、etcpack、nefbl、electron等技术开发。",
+  "description": "数据可视化编辑器，基于image2d、echarts、etcpack、nefbl、electron等技术开发。",
   "main": "index.js",
   "scripts": {
     "dev-web": "etcpack_dev --config etcpack.dev.js",
