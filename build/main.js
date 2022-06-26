@@ -1912,7 +1912,7 @@ window.__etcpack__bundleSrc__['3']=function(){
 window.__etcpack__bundleSrc__['4']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "\n ::-webkit-scrollbar{\n\nwidth: 1px;\n\n}\n"
+    __etcpack__scope_bundle__.default= "\n ::-webkit-scrollbar{\n\nwidth: 1px;\n\n}\n\n .content.layer>.item{\n\ndisplay: inline-block;\n\nwidth: 100px;\n\nfont-size: 12px;\n\ntext-align: center;\n\nmargin: 10px;\n\nline-height: 2em;\n\ncursor: pointer;\n\n}\n\n .content.layer>.item>span{\n\ndisplay: block;\n\noutline: 1px solid rgb(159, 153, 153);\n\nheight: 60px;\n\n}\n\n #layer-container{\n\npadding-top: 10px;\n\n}\n\n #layer-container>li{\n\nborder-bottom: 1px solid gray;\n\nheight: 50px;\n\npadding: 10px;\n\nline-height: 30px;\n\nfont-size: 12px;\n\ncursor: pointer;\n\n}\n\n #layer-container>li:hover{\n\nbackground-color: rgb(0, 0, 0);\n\ncolor: white;\n\n}\n\n #layer-container>li>span{\n\ndisplay: inline-block;\n\noutline: 1px solid rgb(159, 153, 153);\n\nwidth: 50px;\n\nheight: 30px;\n\nvertical-align: top;\n\nmargin-right: 10px;\n\nbackground-color: white;\n\n}\n"
   
     return __etcpack__scope_bundle__;
 }
@@ -1939,10 +1939,10 @@ __etcpack__scope_args__=window.__etcpack__getBundle('6');
 var AppComponent =__etcpack__scope_args__.default;
  // 指令
 
-__etcpack__scope_args__=window.__etcpack__getBundle('22');
+__etcpack__scope_args__=window.__etcpack__getBundle('23');
 var uiBind =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('23');
+__etcpack__scope_args__=window.__etcpack__getBundle('24');
 var uiModel =__etcpack__scope_args__.default;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('25');
@@ -1991,12 +1991,15 @@ __etcpack__scope_args__=window.__etcpack__getBundle('7');
 var isFunction=__etcpack__scope_args__.isFunction;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('17');
-var style =__etcpack__scope_args__.default;
+var xhtml =__etcpack__scope_args__.default;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('18');
-var template =__etcpack__scope_args__.default;
+var style =__etcpack__scope_args__.default;
 
 __etcpack__scope_args__=window.__etcpack__getBundle('19');
+var template =__etcpack__scope_args__.default;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('20');
 var lazyLoad =__etcpack__scope_args__.default;
 
 
@@ -2008,6 +2011,8 @@ var _class = (_dec = Component({
     _classCallCheck(this, _class2);
 
     _defineProperty(this, "view", void 0);
+
+    _defineProperty(this, "currentIndex", void 0);
   }
 
   _createClass(_class2, [{
@@ -2019,14 +2024,17 @@ var _class = (_dec = Component({
         // 记录当前大屏内容
         view: ref({
           value: {
-            name: "大屏编辑器"
+            name: "大屏编辑器",
+            graphs: []
           }
         })
       };
     }
   }, {
     key: "useGraph",
-    value: function useGraph(graph) {
+    value: function useGraph(graph, index) {
+      var _this2 = this;
+
       var graphInstance = globalThis[graph.name];
 
       if (isFunction(graphInstance)) {
@@ -2042,11 +2050,29 @@ var _class = (_dec = Component({
 
         graphInstance(el, graph.config, {
           echarts: globalThis.echarts,
-          image2D: globalThis.image2D
+          image2D: globalThis.image2D,
+          addStyle: function addStyle(source) {
+            var styleElement = document.createElement('style');
+            var head = document.head || document.getElementsByTagName('head')[0];
+            styleElement.innerHTML = source;
+            styleElement.setAttribute('type', 'text/css');
+            head.appendChild(styleElement);
+          }
+        });
+        var layerEl = document.createElement('li');
+        document.getElementById('layer-container').appendChild(layerEl);
+        layerEl.innerHTML = "<span></span>".concat(graph.name);
+        xhtml.bind(layerEl, 'click', function () {
+          _this2.currentIndex = index;
         });
       } else {
         alert('非常抱歉，由于插件[' + graph.name + ']未正确安装，此次运行被中断，请安装此插件~');
       }
+    }
+  }, {
+    key: "showViewConfig",
+    value: function showViewConfig() {
+      this.currentIndex = -1;
     } // 加载图表插件
 
   }, {
@@ -2062,18 +2088,29 @@ var _class = (_dec = Component({
         script.src = "file://" + graph.url + "/index.js";
       }
 
-      head.appendChild(script);
-    }
+      head.appendChild(script); // 登记
+
+      globalThis.graphs.push(graph.name);
+    } // 选中图层（弹框）
+
   }, {
     key: "useLayer",
     value: function useLayer() {
-      // target就表示新打开的弹框对象，你可以通过此来调用弹框的方法等实现数据传递
+      var _this = this; // target就表示新打开的弹框对象，你可以通过此来调用弹框的方法等实现数据传递
+
+
       this.openDialog('layer').then(function (target) {
         target.component.init({
-          el: target.el
+          el: target.el,
+          doback: function doback(layer) {
+            _this.view.value.graphs.push(layer);
+
+            _this.useGraph(layer, _this.view.value.graphs.length - 1);
+          }
         });
       });
-    }
+    } // 选中模板（弹框）
+
   }, {
     key: "useTemplate",
     value: function useTemplate() {
@@ -2082,11 +2119,12 @@ var _class = (_dec = Component({
           el: target.el
         });
       });
-    }
+    } // 打开弹框
+
   }, {
     key: "openDialog",
     value: function openDialog(dialogName) {
-      var _this = this;
+      var _this3 = this;
 
       return new Promise(function (resolve, reject) {
         lazyLoad[dialogName]().then(function (data) {
@@ -2099,35 +2137,50 @@ var _class = (_dec = Component({
           li.style.height = '100vh';
           document.getElementById('dialog').appendChild(li);
           resolve({
-            component: mountComponent(li, data["default"], _this['_module']),
+            component: mountComponent(li, data["default"], _this3['_module']),
             el: li
           });
         });
       });
+    } // 应用view
+
+  }, {
+    key: "runTemplate",
+    value: function runTemplate(view) {
+      if (view) {
+        this.view = view;
+        sessionStorage.setItem('dscode@view-template', JSON.stringify(view));
+      }
+
+      for (var index = 0; index < this.view.value.graphs.length; index++) {
+        this.useGraph(this.view.value.graphs[index], index);
+      }
     }
   }, {
     key: "$mounted",
     value: function $mounted() {
-      var _this2 = this;
+      var _this4 = this;
 
-      // 调整显示位置大小
+      globalThis.graphs = [];
+      setTimeout(function () {
+        var viewTemplateJSON = sessionStorage.getItem('dscode@view-template');
+
+        _this4.runTemplate(viewTemplateJSON ? JSON.parse(viewTemplateJSON) : null);
+      }, 1000); // 调整显示位置大小
+
       globalThis.doResize(); // 通知主线程页面加载完毕
 
       globalThis.nodeRequire('electron').ipcRenderer.send("view-ready"); // 启动事件监听主进程
 
       globalThis.nodeRequire('electron').ipcRenderer // 文件 / 安装
       .on("install-graph", function (event, graph) {
-        _this2.loadGraph(graph);
+        _this4.loadGraph(graph);
       }) // 文件 / 打开
       .on("open-view", function (event, view) {
-        _this2.view = view;
-
-        for (var index = 0; index < view.value.graphs.length; index++) {
-          _this2.useGraph(view.value.graphs[index]);
-        }
+        _this4.runTemplate(view);
       }) // 运行 / 打包
       .on("run-pkg", function (event) {
-        globalThis.nodeRequire('electron').ipcRenderer.send("run-pkg", _this2.view);
+        globalThis.nodeRequire('electron').ipcRenderer.send("run-pkg", _this4.view);
       });
     }
   }]);
@@ -2471,163 +2524,9 @@ __etcpack__scope_bundle__.default= function (value) {
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/App/index.scss
-/*****************************************************************/
-window.__etcpack__bundleSrc__['17']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "\n .view>header{\n\nline-height: 40px;\n\nbackground-color: black;\n\ncolor: #fff;\n\ntext-align: center;\n\n}\n\n .view>header>h2{\n\ndisplay: inline-block;\n\nbackground-image: url('./image/logo.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center left;\n\npadding-left: 40px;\n\nfont-size: 14px;\n\nfont-weight: 800;\n\nheight: 40px;\n\nvertical-align: top;\n\n}\n\n .view>header>ul{\n\nposition: absolute;\n\nright: 0;\n\ntop: 0;\n\nline-height: 1em;\n\n}\n\n .view>header>ul>li{\n\ndisplay: inline-block;\n\nbackground-color: white;\n\ncolor: black;\n\nfont-size: 12px;\n\nmargin: 5px;\n\npadding-left: 20px;\n\npadding-right: 5px;\n\nline-height: 20px;\n\nbackground-image: url('./image/add.png');\n\nbackground-repeat: no-repeat;\n\nbackground-position: 3px center;\n\nbackground-size: 15px auto;\n\ncursor: pointer;\n\n}\n\n .view>div{\n\nfont-size: 0;\n\nwhite-space: nowrap;\n\noverflow: hidden;\n\n}\n\n .view>div>div{\n\nwhite-space: normal;\n\ndisplay: inline-block;\n\noverflow: auto;\n\nheight: calc(100vh - 40px);\n\nfont-size: 16px;\n\n}\n\n .view>div>div.layer, .view>div>div.config{\n\nbackground-color: #ffffff;\n\nwidth: 220px;\n\n}\n\n .view>div>div.layer>h4, .view>div>div.config>h4{\n\nbackground-color: black;\n\ncolor: #fff;\n\nfont-size: 13px;\n\nline-height: 35px;\n\ntext-align: center;\n\n}\n\n .view>div>div.config{\n\ndisplay: none;\n\n}\n\n .view>div>div.config[show='yes']{\n\ndisplay: inline-block;\n\n}\n\n .view>div>div.main-view{\n\nwidth: calc(100vw - 440px);\n\nposition: relative;\n\nbackground-image: url('./image/mosaic.png');\n\nbackground-size: 20px 20px;\n\noverflow-x: hidden;\n\n}\n\n .view>div>div.main-view>#container{\n\nwidth: 1920px;\n\nheight: 1080px;\n\ntransform-origin: left top;\n\nposition: absolute;\n\nleft: 20px;\n\ntop: 20px;\n\nbackground-color: white;\n\noutline: 2px dashed black;\n\n}\n\n #dialog{\n\nposition: fixed;\n\nleft: 0;\n\ntop: 0;\n\n}\n"
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./src/App/index.html
-/*****************************************************************/
-window.__etcpack__bundleSrc__['18']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "<div class='view'>\n    <header>\n        <h2 ui-bind=\"view.value.name\"></h2>\n        <ul>\n            <li class=\"add\" ui-on:click=\"useLayer\">\n                图层\n            </li>\n            <li class=\"add\" ui-on:click=\"useTemplate\">\n                模板\n            </li>\n        </ul>\n    </header>\n    <div>\n        <div class=\"config\" ui-bind:show=\"currentIndex==-1?'yes':'no'\">\n            <h4>\n                全局配置\n            </h4>\n        </div>\n        <div class=\"config\" ui-bind:show=\"currentIndex!=-1?'yes':'no'\">\n            <h4>\n                图层配置\n            </h4>\n        </div>\n        <div class=\"main-view\">\n            <div id=\"container\"></div>\n        </div>\n        <div class=\"layer\">\n            <h4>\n                图层\n            </h4>\n        </div>\n    </div>\n</div>\n\n<!-- 弹框 -->\n<ul id=\"dialog\"></ul>\n"
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./src/dialogs/lazy-load.js
-/*****************************************************************/
-window.__etcpack__bundleSrc__['19']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= {
-  layer: function layer() {
-    return window.__etcpack__getLazyBundle('./build/main-bundle1.js','20');
-  },
-  template: function template() {
-    return window.__etcpack__getLazyBundle('./build/main-bundle2.js','21');
-  }
-};
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./node_modules/sprout-ui/nefbl/directive/ui-bind.ts
-/*****************************************************************/
-window.__etcpack__bundleSrc__['22']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    var _dec, _class2;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-__etcpack__scope_args__=window.__etcpack__getBundle('1');
-var Directive=__etcpack__scope_args__.Directive;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('7');
-var isString=__etcpack__scope_args__.isString;
-
-
-var update = function update(el, binding) {
-  // 如果有type表示给属性赋值
-  if (isString(binding.type) && binding.type.length > 0) {
-    if (el.getAttribute(binding.type) != binding.value) {
-      el.setAttribute(binding.type, binding.value);
-    }
-  } // 否则是设置内容或值
-  else {
-    if (el.value != binding.value || el.textContent != binding.value) {
-      el.value = el.textContent = binding.value;
-    }
-  }
-};
-
-var _class = (_dec = Directive({
-  selector: "ui-bind"
-}), _dec(_class2 = /*#__PURE__*/function () {
-  function _class2() {
-    _classCallCheck(this, _class2);
-  }
-
-  _createClass(_class2, [{
-    key: "$inserted",
-    value: function $inserted(el, binding) {
-      update(el, binding);
-    }
-  }, {
-    key: "$update",
-    value: function $update(el, binding) {
-      update(el, binding);
-    }
-  }]);
-
-  return _class2;
-}()) || _class2);
-
-__etcpack__scope_bundle__.default=_class;
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
-// Original file:./node_modules/sprout-ui/nefbl/directive/ui-model.ts
-/*****************************************************************/
-window.__etcpack__bundleSrc__['23']=function(){
-    var __etcpack__scope_bundle__={};
-    var __etcpack__scope_args__;
-    var _dec, _class2;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-__etcpack__scope_args__=window.__etcpack__getBundle('1');
-var Directive=__etcpack__scope_args__.Directive;
-var setValue=__etcpack__scope_args__.setValue;
-
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
-var xhtml =__etcpack__scope_args__.default;
-
-
-var _class = (_dec = Directive({
-  selector: "ui-model"
-}), _dec(_class2 = /*#__PURE__*/function () {
-  function _class2() {
-    _classCallCheck(this, _class2);
-  }
-
-  _createClass(_class2, [{
-    key: "$inserted",
-    value: function $inserted(el, binding) {
-      el.value = binding.value;
-      xhtml.bind(el, 'input', function () {
-        setValue(binding.target, "." + binding.exp, el.value);
-      });
-    }
-  }, {
-    key: "$update",
-    value: function $update(el, binding) {
-      el.value = binding.value;
-    }
-  }]);
-
-  return _class2;
-}()) || _class2);
-
-__etcpack__scope_bundle__.default=_class;
-  
-    return __etcpack__scope_bundle__;
-}
-
-/*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/browser/xhtml.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['24']=function(){
+window.__etcpack__bundleSrc__['17']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     /*!
@@ -2940,6 +2839,160 @@ __etcpack__scope_bundle__.default= {
 }
 
 /*************************** [bundle] ****************************/
+// Original file:./src/App/index.scss
+/*****************************************************************/
+window.__etcpack__bundleSrc__['18']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_bundle__.default= "\n .view>header{\n\nline-height: 40px;\n\nbackground-color: black;\n\ncolor: #fff;\n\ntext-align: center;\n\n}\n\n .view>header>h2{\n\ndisplay: inline-block;\n\nbackground-image: url('./image/logo.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center left;\n\npadding-left: 40px;\n\nfont-size: 14px;\n\nfont-weight: 800;\n\nheight: 40px;\n\nvertical-align: top;\n\n}\n\n .view>header>ul{\n\nposition: absolute;\n\nright: 0;\n\ntop: 0;\n\nline-height: 1em;\n\n}\n\n .view>header>ul>li{\n\ndisplay: inline-block;\n\nbackground-color: white;\n\ncolor: black;\n\nfont-size: 12px;\n\nmargin: 5px;\n\npadding-left: 20px;\n\npadding-right: 5px;\n\nline-height: 20px;\n\nbackground-image: url('./image/add.png');\n\nbackground-repeat: no-repeat;\n\nbackground-position: 3px center;\n\nbackground-size: 15px auto;\n\ncursor: pointer;\n\n}\n\n .view>div{\n\nfont-size: 0;\n\nwhite-space: nowrap;\n\noverflow: hidden;\n\n}\n\n .view>div>div{\n\nwhite-space: normal;\n\ndisplay: inline-block;\n\noverflow: auto;\n\nheight: calc(100vh - 40px);\n\nfont-size: 16px;\n\n}\n\n .view>div>div.layer, .view>div>div.config{\n\nbackground-color: #ffffff;\n\nwidth: 220px;\n\n}\n\n .view>div>div.layer>h4, .view>div>div.config>h4{\n\nbackground-color: black;\n\ncolor: #fff;\n\nfont-size: 13px;\n\nline-height: 35px;\n\ntext-align: center;\n\n}\n\n .view>div>div.config{\n\ndisplay: none;\n\n}\n\n .view>div>div.config[show='yes']{\n\ndisplay: inline-block;\n\n}\n\n .view>div>div.main-view{\n\nwidth: calc(100vw - 440px);\n\nposition: relative;\n\nbackground-image: url('./image/mosaic.png');\n\nbackground-size: 20px 20px;\n\noverflow-x: hidden;\n\n}\n\n .view>div>div.main-view>#container{\n\nwidth: 1920px;\n\nheight: 1080px;\n\ntransform-origin: left top;\n\nposition: absolute;\n\nleft: 20px;\n\ntop: 20px;\n\nbackground-color: white;\n\noutline: 2px dashed black;\n\n}\n\n #dialog{\n\nposition: fixed;\n\nleft: 0;\n\ntop: 0;\n\n}\n"
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/App/index.html
+/*****************************************************************/
+window.__etcpack__bundleSrc__['19']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_bundle__.default= "<div class='view'>\n    <header ui-on:click=\"showViewConfig\">\n        <h2 ui-bind=\"view.value.name\"></h2>\n        <ul>\n            <li class=\"add\" ui-on:click=\"useLayer\">\n                图层\n            </li>\n            <li class=\"add\" ui-on:click=\"useTemplate\">\n                模板\n            </li>\n        </ul>\n    </header>\n    <div>\n        <div class=\"config\" ui-bind:show=\"currentIndex==-1?'yes':'no'\">\n            <h4>\n                全局配置\n            </h4>\n        </div>\n        <div class=\"config\" ui-bind:show=\"currentIndex!=-1?'yes':'no'\">\n            <h4>\n                图层配置\n            </h4>\n        </div>\n        <div class=\"main-view\">\n            <div id=\"container\"></div>\n        </div>\n        <div class=\"layer\">\n            <h4>\n                图层\n            </h4>\n            <ul id=\"layer-container\"></ul>\n        </div>\n    </div>\n</div>\n\n<!-- 弹框 -->\n<ul id=\"dialog\"></ul>\n"
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./src/dialogs/lazy-load.js
+/*****************************************************************/
+window.__etcpack__bundleSrc__['20']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    __etcpack__scope_bundle__.default= {
+  layer: function layer() {
+    return window.__etcpack__getLazyBundle('./build/main-bundle1.js','21');
+  },
+  template: function template() {
+    return window.__etcpack__getLazyBundle('./build/main-bundle2.js','22');
+  }
+};
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./node_modules/sprout-ui/nefbl/directive/ui-bind.ts
+/*****************************************************************/
+window.__etcpack__bundleSrc__['23']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    var _dec, _class2;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+__etcpack__scope_args__=window.__etcpack__getBundle('1');
+var Directive=__etcpack__scope_args__.Directive;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('7');
+var isString=__etcpack__scope_args__.isString;
+
+
+var update = function update(el, binding) {
+  // 如果有type表示给属性赋值
+  if (isString(binding.type) && binding.type.length > 0) {
+    if (el.getAttribute(binding.type) != binding.value) {
+      el.setAttribute(binding.type, binding.value);
+    }
+  } // 否则是设置内容或值
+  else {
+    if (el.value != binding.value || el.textContent != binding.value) {
+      el.value = el.textContent = binding.value;
+    }
+  }
+};
+
+var _class = (_dec = Directive({
+  selector: "ui-bind"
+}), _dec(_class2 = /*#__PURE__*/function () {
+  function _class2() {
+    _classCallCheck(this, _class2);
+  }
+
+  _createClass(_class2, [{
+    key: "$inserted",
+    value: function $inserted(el, binding) {
+      update(el, binding);
+    }
+  }, {
+    key: "$update",
+    value: function $update(el, binding) {
+      update(el, binding);
+    }
+  }]);
+
+  return _class2;
+}()) || _class2);
+
+__etcpack__scope_bundle__.default=_class;
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./node_modules/sprout-ui/nefbl/directive/ui-model.ts
+/*****************************************************************/
+window.__etcpack__bundleSrc__['24']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    var _dec, _class2;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+__etcpack__scope_args__=window.__etcpack__getBundle('1');
+var Directive=__etcpack__scope_args__.Directive;
+var setValue=__etcpack__scope_args__.setValue;
+
+__etcpack__scope_args__=window.__etcpack__getBundle('17');
+var xhtml =__etcpack__scope_args__.default;
+
+
+var _class = (_dec = Directive({
+  selector: "ui-model"
+}), _dec(_class2 = /*#__PURE__*/function () {
+  function _class2() {
+    _classCallCheck(this, _class2);
+  }
+
+  _createClass(_class2, [{
+    key: "$inserted",
+    value: function $inserted(el, binding) {
+      el.value = binding.value;
+      xhtml.bind(el, 'input', function () {
+        setValue(binding.target, "." + binding.exp, el.value);
+      });
+    }
+  }, {
+    key: "$update",
+    value: function $update(el, binding) {
+      el.value = binding.value;
+    }
+  }]);
+
+  return _class2;
+}()) || _class2);
+
+__etcpack__scope_bundle__.default=_class;
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-on.ts
 /*****************************************************************/
 window.__etcpack__bundleSrc__['25']=function(){
@@ -2956,7 +3009,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
+__etcpack__scope_args__=window.__etcpack__getBundle('17');
 var xhtml =__etcpack__scope_args__.default;
 
 /**
@@ -3025,7 +3078,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Directive=__etcpack__scope_args__.Directive;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
+__etcpack__scope_args__=window.__etcpack__getBundle('17');
 var xhtml =__etcpack__scope_args__.default;
 
 

@@ -1,5 +1,5 @@
 <div class='view'>
-    <header>
+    <header ui-on:click="showViewConfig">
         <h2 ui-bind="view.value.name"></h2>
         <ul>
             <li class="add" ui-on:click="useLayer">
@@ -28,6 +28,7 @@
             <h4>
                 图层
             </h4>
+            <ul id="layer-container"></ul>
         </div>
     </div>
 </div>

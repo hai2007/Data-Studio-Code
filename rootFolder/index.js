@@ -16,7 +16,14 @@ for (i = 0; i < viewJSON.value.graphs.length; i++) {
 
     graphs[graph.name](el, graph.config, {
         echarts: window.echarts,
-        image2D: window.image2D
+        image2D: window.image2D,
+        addStyle: function (source) {
+            var styleElement = document.createElement('style');
+            var head = document.head || document.getElementsByTagName('head')[0];
+            styleElement.innerHTML = source;
+            styleElement.setAttribute('type', 'text/css');
+            head.appendChild(styleElement);
+        }
     })
 
 }

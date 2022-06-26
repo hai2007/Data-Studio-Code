@@ -1,5 +1,6 @@
 import { Component, ref, mountComponent } from 'nefbl'
-import { isFunction, isString } from '@hai2007/tool/type'
+import { isFunction } from '@hai2007/tool/type'
+import xhtml from '@hai2007/browser/xhtml'
 
 import style from './index.scss'
 import template from './index.html'
@@ -13,6 +14,7 @@ import lazyLoad from '../dialogs/lazy-load.js'
 export default class {
 
     view: any
+    currentIndex: any
 
     $setup() {
         return {
@@ -23,13 +25,14 @@ export default class {
             // 记录当前大屏内容
             view: ref({
                 value: {
-                    name: "大屏编辑器"
+                    name: "大屏编辑器",
+                    graphs: []
                 }
             })
         }
     }
 
-    useGraph(graph) {
+    useGraph(graph, index) {
 
         let graphInstance = globalThis[graph.name]
 
@@ -49,12 +52,33 @@ export default class {
             // 最后调用绘制
             graphInstance(el, graph.config, {
                 echarts: globalThis.echarts,
-                image2D: globalThis.image2D
+                image2D: globalThis.image2D,
+                addStyle: function (source) {
+                    let styleElement = document.createElement('style');
+                    let head = document.head || document.getElementsByTagName('head')[0];
+                    styleElement.innerHTML = source;
+                    styleElement.setAttribute('type', 'text/css');
+                    head.appendChild(styleElement);
+                }
             })
+
+            let layerEl = document.createElement('li')
+            document.getElementById('layer-container').appendChild(layerEl)
+
+            layerEl.innerHTML = `<span></span>${graph.name}`
+
+            xhtml.bind(layerEl, 'click', () => {
+                this.currentIndex = index
+            })
+
         } else {
             alert('非常抱歉，由于插件[' + graph.name + ']未正确安装，此次运行被中断，请安装此插件~')
         }
 
+    }
+
+    showViewConfig() {
+        this.currentIndex = -1
     }
 
     // 加载图表插件
@@ -69,17 +93,29 @@ export default class {
             script.src = "file://" + graph.url + "/index.js"
         }
         head.appendChild(script)
+
+        // 登记
+        globalThis.graphs.push(graph.name)
+
     }
 
+    // 选中图层（弹框）
     useLayer() {
+        let _this = this
+
         // target就表示新打开的弹框对象，你可以通过此来调用弹框的方法等实现数据传递
         this.openDialog('layer').then((target: any) => {
             target.component.init({
-                el: target.el
+                el: target.el,
+                doback(layer) {
+                    _this.view.value.graphs.push(layer)
+                    _this.useGraph(layer, _this.view.value.graphs.length - 1)
+                }
             })
         })
     }
 
+    // 选中模板（弹框）
     useTemplate() {
         this.openDialog('template').then((target: any) => {
             target.component.init({
@@ -88,6 +124,7 @@ export default class {
         })
     }
 
+    // 打开弹框
     openDialog(dialogName) {
 
         return new Promise((resolve, reject) => {
@@ -108,7 +145,26 @@ export default class {
         })
     }
 
+    // 应用view
+    runTemplate(view?) {
+
+        if (view) {
+            this.view = view
+            sessionStorage.setItem('dscode@view-template', JSON.stringify(view))
+        }
+
+        for (let index = 0; index < this.view.value.graphs.length; index++) {
+            this.useGraph(this.view.value.graphs[index], index)
+        }
+    }
+
     $mounted() {
+        globalThis.graphs = []
+
+        setTimeout(() => {
+            let viewTemplateJSON = sessionStorage.getItem('dscode@view-template')
+            this.runTemplate(viewTemplateJSON ? JSON.parse(viewTemplateJSON) : null)
+        }, 1000)
 
         // 调整显示位置大小
         globalThis.doResize()
@@ -126,12 +182,7 @@ export default class {
 
             // 文件 / 打开
             .on("open-view", (event, view) => {
-                this.view = view
-
-                for (let index = 0; index < view.value.graphs.length; index++) {
-                    this.useGraph(view.value.graphs[index])
-                }
-
+                this.runTemplate(view)
             })
 
             // 运行 / 打包
