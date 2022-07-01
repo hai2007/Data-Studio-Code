@@ -4,6 +4,6 @@ const { dialog } = require('electron');
 
 exports.selectFolder = function () {
     return dialog.showOpenDialog({
-        properties: ['openDirectory']
+        properties: ['openDirectory', 'multiSelections']
     })
 }

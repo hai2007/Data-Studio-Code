@@ -4,6 +4,18 @@ const nodejs = require('@hai2007/nodejs');
 const { fullPath } = require('./rootFolder');
 const fs = require('fs');
 
+let ctrl;
+
+// 如果是mac电脑
+if (process.platform == 'darwin') {
+    ctrl = "Command";
+}
+
+// 不然默认windows
+else {
+    ctrl = "Ctrl";
+}
+
 module.exports = function (win) {
     Menu.setApplicationMenu(Menu.buildFromTemplate([{
         label: '大屏编辑器',
@@ -21,7 +33,7 @@ module.exports = function (win) {
             type: 'separator'
         }, {
             label: '关闭',
-            accelerator: 'Command+Q',
+            accelerator: ctrl + '+Q',
             click: () => {
                 win.close();
             }
@@ -30,13 +42,13 @@ module.exports = function (win) {
         label: "文件",
         submenu: [{
             label: "新建",
-            accelerator: 'Command+n',
+            accelerator: ctrl + '+n',
             click: function () {
                 console.log('>>>新建>>>');
             }
         }, {
             label: "打开",
-            accelerator: 'Command+o',
+            accelerator: ctrl + '+o',
             click: function () {
 
                 selectFolder().then(data => {
@@ -58,56 +70,66 @@ module.exports = function (win) {
             }
         }, {
             label: "保存",
-            accelerator: 'Command+s',
+            accelerator: ctrl + '+s',
             click: function () {
                 console.log('>>>保存>>>');
             }
         }, {
             type: 'separator'
         }, {
-            label: '安装',
-            accelerator: 'Command+i',
+            label: '安装组件',
+            accelerator: ctrl + '+i',
             click: () => {
 
                 selectFolder().then(data => {
 
                     if (!data.canceled) {
 
-                        let filePath = data.filePaths[0];
-                        let folderName = filePath.replace(/\\/g, '/').replace(/\/$/, '').split('/').pop();
-                        let targetPath = fullPath('./graphs/' + folderName);
+                        for (let index = 0; index < data.filePaths.length; index++) {
 
-                        // 统一复制到指定地方保存起来
-                        nodejs.copySync(filePath, targetPath);
+                            let filePath = data.filePaths[index];
+                            let folderName = filePath.replace(/\\/g, '/').replace(/\/$/, '').split('/').pop();
+                            let targetPath = fullPath('./graphs/' + folderName);
 
-                        let graphsJSONPath = fullPath('./graphs/index.json');
+                            // 统一复制到指定地方保存起来
+                            nodejs.copySync(filePath, targetPath);
 
-                        // 登记
+                            let graphsJSONPath = fullPath('./graphs/index.json');
 
-                        let graphsJSON = JSON.parse(fs.readFileSync(graphsJSONPath));
-                        let graph = {
-                            name: folderName,
-                            url: targetPath
-                        };
+                            // 登记
 
-                        graphsJSON.graphs[folderName] = graph;
+                            let graphsJSON = JSON.parse(fs.readFileSync(graphsJSONPath));
+                            let graph = {
+                                name: folderName,
+                                url: targetPath
+                            };
 
-                        fs.writeFileSync(graphsJSONPath, JSON.stringify(graphsJSON, null, 2), 'utf-8');
+                            graphsJSON.graphs[folderName] = graph;
 
-                        // 通知渲染界面加载
-                        win.webContents.send("install-graph", graph);
+                            fs.writeFileSync(graphsJSONPath, JSON.stringify(graphsJSON, null, 2), 'utf-8');
+
+                            // 通知渲染界面加载
+                            win.webContents.send("install-graph", graph);
+
+                        }
 
                     }
 
                 });
 
             }
+        }, {
+            label: '安装模板',
+            accelerator: 'Shift+' + ctrl + '+i',
+            click: () => {
+                console.log('>>>安装模板>>>');
+            }
         }]
     }, {
         label: "运行",
         submenu: [{
             label: "打包",
-            accelerator: 'Command+x',
+            accelerator: ctrl + '+x',
             click: function () {
                 win.webContents.send("run-pkg");
             }
@@ -125,13 +147,13 @@ module.exports = function (win) {
         label: "视图",
         submenu: [{
             label: "刷新",
-            accelerator: 'Command+r',
+            accelerator: ctrl + '+r',
             click: function () {
                 win.webContents.reload();
             }
         }, {
             label: "硬刷新",
-            accelerator: 'Shift+Command++r',
+            accelerator: 'Shift+' + ctrl + '+r',
             click: function () {
                 win.webContents.reload(true);
             }

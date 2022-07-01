@@ -23,13 +23,18 @@ module.exports = function (win) {
 
         let indexCode = fs.readFileSync(fullPath('./index.js'));
 
+        let graphLog = {};
+
         let graphsImport = "";
         let graphsKey = "";
         for (let index = 0; index < view.value.graphs.length; index++) {
             let graphName = view.value.graphs[index].name;
 
-            graphsImport += "import " + graphName + " from '../graphs/" + graphName + "/index.js';\n";
-            graphsKey += "'" + graphName + "':" + graphName + ",";
+            if (!graphLog[graphName]) {
+                graphsImport += "import " + graphName + " from '../graphs/" + graphName + "/index.js';\n";
+                graphsKey += "'" + graphName + "':" + graphName + ",";
+                graphLog[graphName] = true;
+            }
 
         }
 
