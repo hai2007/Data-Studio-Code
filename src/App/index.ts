@@ -51,8 +51,7 @@ export default class {
 
             // 最后调用绘制
             graphInstance(el, graph.config, {
-                echarts: globalThis.echarts,
-                image2D: globalThis.image2D,
+                Clunch: globalThis.Clunch,
                 addStyle: function (source) {
                     let styleElement = document.createElement('style');
                     let head = document.head || document.getElementsByTagName('head')[0];

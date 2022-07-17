@@ -2049,8 +2049,7 @@ var _class = (_dec = Component({
         el.style.height = graph.position.height + "%"; // 最后调用绘制
 
         graphInstance(el, graph.config, {
-          echarts: globalThis.echarts,
-          image2D: globalThis.image2D,
+          Clunch: globalThis.Clunch,
           addStyle: function addStyle(source) {
             var styleElement = document.createElement('style');
             var head = document.head || document.getElementsByTagName('head')[0];

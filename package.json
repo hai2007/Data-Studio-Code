@@ -105,6 +105,7 @@
   "dependencies": {
     "@etcpack/commonjs-plug": "^0.2.0",
     "@hai2007/nodejs": "^3.0.1",
-    "etcpack": "^0.13.0"
+    "etcpack": "^0.13.0",
+    "image2d": "^1.16.4"
   }
 }
