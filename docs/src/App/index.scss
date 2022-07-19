@@ -1,0 +1,66 @@
+.root-view {
+    overflow: hidden;
+    height: 100vh;
+
+    &>header {
+        box-shadow: 0px 0px 4px 4px #edede7;
+        line-height: 40px;
+
+        &>h2 {
+            display: inline-block;
+            font-size: 14px;
+            background-image: url('./logo.png');
+            padding-left: 50px;
+            background-size: auto 90%;
+            background-position: 10px center;
+            background-repeat: no-repeat;
+        }
+
+        &>nav {
+            display: inline-block;
+            margin-left: 100px;
+
+            &>span {
+                font-size: 12px;
+                padding: 0 5px;
+                margin: 0 10px;
+                height: 36px;
+                display: inline-block;
+                cursor: pointer;
+
+                &[active='yes'] {
+                    border-bottom: 1px solid red;
+                }
+            }
+        }
+
+        &>span {
+            float: right;
+            cursor: pointer;
+
+            &.github {
+                font-size: 0;
+                width: 100px;
+                background-image: url('./images/github.png');
+                background-repeat: no-repeat;
+                background-size: auto 90%;
+                background-position: left center;
+            }
+        }
+    }
+
+    &>div {
+        &.tips {
+            line-height: 20px;
+            text-align: center;
+            background-color: #edede7;
+            font-size: 12px;
+            color: red;
+        }
+
+        &.view {
+            height: calc(100vh - 60px);
+            overflow: auto;
+        }
+    }
+}

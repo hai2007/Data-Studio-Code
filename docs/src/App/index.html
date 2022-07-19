@@ -1,1 +1,15 @@
-<div ui-lazy='currentPage'></div>
+<div class="root-view">
+    <div class="tips">
+        温馨提示：研发中，敬请期待！
+    </div>
+    <header>
+        <h2>Data Studio Code</h2>
+        <nav>
+            <span ui-bind:active="currentName=='home'?'yes':'no'" ui-on:click="changeNav" tag="home">首页</span>
+            <span ui-bind:active="currentName=='doc'?'yes':'no'" ui-on:click="changeNav" tag="doc">文档</span>
+            <span ui-bind:active="currentName=='store'?'yes':'no'" ui-on:click="changeNav" tag="store">商店</span>
+        </nav>
+        <span class="github" title="点击我查看项目源码～">源码仓库</span>
+    </header>
+    <div class="view" ui-lazy='currentPage'></div>
+</div>

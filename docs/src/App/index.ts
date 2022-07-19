@@ -15,10 +15,12 @@ import pages from '../pages/lazy-load'
 })
 export default class {
     currentPage: any
+    currentName: any
 
     $setup() {
         return {
-            currentPage: ref(null)
+            currentPage: ref(null),
+            currentName: ref("")
         }
     }
 
@@ -35,6 +37,12 @@ export default class {
 
             // 地址错误，跳转到首页
             page = pages['home']
+            this.currentName = "home"
+        }
+
+        // 否则
+        else {
+            this.currentName = urlObj.router[0]
         }
 
         // 打开页面
@@ -42,6 +50,14 @@ export default class {
             this.currentPage = data.default
         })
 
+    }
+
+    changeNav(event) {
+        this.currentName = event.target.getAttribute('tag')
+        window.location.href = "#/" + this.currentName
+        pages[this.currentName]().then(data => {
+            this.currentPage = data.default
+        })
     }
 
 }

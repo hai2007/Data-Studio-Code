@@ -1939,16 +1939,16 @@ __etcpack__scope_args__=window.__etcpack__getBundle('6');
 var AppComponent =__etcpack__scope_args__.default;
  // 指令
 
-__etcpack__scope_args__=window.__etcpack__getBundle('23');
+__etcpack__scope_args__=window.__etcpack__getBundle('22');
 var uiBind =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('24');
+__etcpack__scope_args__=window.__etcpack__getBundle('23');
 var uiModel =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('25');
+__etcpack__scope_args__=window.__etcpack__getBundle('24');
 var uiOn =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('26');
+__etcpack__scope_args__=window.__etcpack__getBundle('25');
 var uiDragdrop =__etcpack__scope_args__.default;
 
 
@@ -2108,16 +2108,6 @@ var _class = (_dec = Component({
           }
         });
       });
-    } // 选中模板（弹框）
-
-  }, {
-    key: "useTemplate",
-    value: function useTemplate() {
-      this.openDialog('template').then(function (target) {
-        target.component.init({
-          el: target.el
-        });
-      });
     } // 打开弹框
 
   }, {
@@ -2171,13 +2161,18 @@ var _class = (_dec = Component({
 
       globalThis.nodeRequire('electron').ipcRenderer.send("view-ready"); // 启动事件监听主进程
 
-      globalThis.nodeRequire('electron').ipcRenderer // 文件 / 安装
+      globalThis.nodeRequire('electron').ipcRenderer // 安装
       .on("install-graph", function (event, graph) {
         _this4.loadGraph(graph);
-      }) // 文件 / 打开
+      }) // 打开
       .on("open-view", function (event, view) {
         _this4.runTemplate(view);
-      }) // 运行 / 打包
+      }) // 保存
+      .on("save-view", function (event) {
+        if (_this4.view.path) {
+          globalThis.nodeRequire('electron').ipcRenderer.send("save-view", _this4.view);
+        }
+      }) // 打包
       .on("run-pkg", function (event) {
         globalThis.nodeRequire('electron').ipcRenderer.send("run-pkg", _this4.view);
       });
@@ -2854,7 +2849,7 @@ window.__etcpack__bundleSrc__['18']=function(){
 window.__etcpack__bundleSrc__['19']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "<div class='view'>\n    <header ui-on:click=\"showViewConfig\">\n        <h2 ui-bind=\"view.value.name\"></h2>\n        <ul>\n            <li class=\"add\" ui-on:click=\"useLayer\">\n                图层\n            </li>\n            <li class=\"add\" ui-on:click=\"useTemplate\">\n                模板\n            </li>\n        </ul>\n    </header>\n    <div>\n        <div class=\"config\" ui-bind:show=\"currentIndex==-1?'yes':'no'\">\n            <h4>\n                全局配置\n            </h4>\n        </div>\n        <div class=\"config\" ui-bind:show=\"currentIndex!=-1?'yes':'no'\">\n            <h4>\n                图层配置\n            </h4>\n        </div>\n        <div class=\"main-view\">\n            <div id=\"container\"></div>\n        </div>\n        <div class=\"layer\">\n            <h4>\n                图层\n            </h4>\n            <ul id=\"layer-container\"></ul>\n        </div>\n    </div>\n</div>\n\n<!-- 弹框 -->\n<ul id=\"dialog\"></ul>\n"
+    __etcpack__scope_bundle__.default= "<div class='view'>\n    <header ui-on:click=\"showViewConfig\">\n        <h2 ui-bind=\"view.value.name\"></h2>\n        <ul>\n            <li class=\"add\" ui-on:click=\"useLayer\">\n                图表\n            </li>\n        </ul>\n    </header>\n    <div>\n        <div class=\"config\" ui-bind:show=\"currentIndex==-1?'yes':'no'\">\n            <h4>\n                全局配置\n            </h4>\n        </div>\n        <div class=\"config\" ui-bind:show=\"currentIndex!=-1?'yes':'no'\">\n            <h4>\n                图层配置\n            </h4>\n        </div>\n        <div class=\"main-view\">\n            <div id=\"container\"></div>\n        </div>\n        <div class=\"layer\">\n            <h4>\n                图表\n            </h4>\n            <ul id=\"layer-container\"></ul>\n        </div>\n    </div>\n</div>\n\n<!-- 弹框 -->\n<ul id=\"dialog\"></ul>"
   
     return __etcpack__scope_bundle__;
 }
@@ -2868,9 +2863,6 @@ window.__etcpack__bundleSrc__['20']=function(){
     __etcpack__scope_bundle__.default= {
   layer: function layer() {
     return window.__etcpack__getLazyBundle('./build/main-bundle1.js','21');
-  },
-  template: function template() {
-    return window.__etcpack__getLazyBundle('./build/main-bundle2.js','22');
   }
 };
   
@@ -2880,7 +2872,7 @@ window.__etcpack__bundleSrc__['20']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-bind.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['23']=function(){
+window.__etcpack__bundleSrc__['22']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2942,7 +2934,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-model.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['24']=function(){
+window.__etcpack__bundleSrc__['23']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -2994,7 +2986,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/sprout-ui/nefbl/directive/ui-on.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['25']=function(){
+window.__etcpack__bundleSrc__['24']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -3063,7 +3055,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./src/directive/ui-dragdrop.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['26']=function(){
+window.__etcpack__bundleSrc__['25']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;

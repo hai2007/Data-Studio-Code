@@ -19,6 +19,10 @@ module.exports = function (win) {
 
     });
 
+    ipcMain.on('save-view', function (event, view) {
+        fs.writeFileSync(view.path, JSON.stringify(view.value, null, 4), 'utf-8');
+    });
+
     ipcMain.on('run-pkg', function (event, view) {
 
         let indexCode = fs.readFileSync(fullPath('./index.js'));

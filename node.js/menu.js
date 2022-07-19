@@ -4,18 +4,6 @@ const nodejs = require('@hai2007/nodejs');
 const { fullPath } = require('./rootFolder');
 const fs = require('fs');
 
-let ctrl;
-
-// 如果是mac电脑
-if (process.platform == 'darwin') {
-    ctrl = "Command";
-}
-
-// 不然默认windows
-else {
-    ctrl = "Ctrl";
-}
-
 module.exports = function (win) {
     Menu.setApplicationMenu(Menu.buildFromTemplate([{
         label: '大屏编辑器',
@@ -33,7 +21,7 @@ module.exports = function (win) {
             type: 'separator'
         }, {
             label: '关闭',
-            accelerator: ctrl + '+Q',
+            accelerator: 'CmdOrCtrl+Q',
             click: () => {
                 win.close();
             }
@@ -41,14 +29,8 @@ module.exports = function (win) {
     }, {
         label: "文件",
         submenu: [{
-            label: "新建",
-            accelerator: ctrl + '+n',
-            click: function () {
-                console.log('>>>新建>>>');
-            }
-        }, {
             label: "打开",
-            accelerator: ctrl + '+o',
+            accelerator: 'CmdOrCtrl+o',
             click: function () {
 
                 selectFolder().then(data => {
@@ -70,15 +52,15 @@ module.exports = function (win) {
             }
         }, {
             label: "保存",
-            accelerator: ctrl + '+s',
+            accelerator: 'CmdOrCtrl+s',
             click: function () {
-                console.log('>>>保存>>>');
+                win.webContents.send("save-view");
             }
         }, {
             type: 'separator'
         }, {
-            label: '安装组件',
-            accelerator: ctrl + '+i',
+            label: '安装',
+            accelerator: 'CmdOrCtrl+i',
             click: () => {
 
                 selectFolder().then(data => {
@@ -119,43 +101,64 @@ module.exports = function (win) {
 
             }
         }, {
-            label: '安装模板',
-            accelerator: 'Shift+' + ctrl + '+i',
-            click: () => {
-                console.log('>>>安装模板>>>');
-            }
-        }]
-    }, {
-        label: "运行",
-        submenu: [{
-            label: "打包",
-            accelerator: ctrl + '+x',
+            type: 'separator'
+        }, {
+            label: "打包发布",
+            accelerator: 'CmdOrCtrl+x',
             click: function () {
                 win.webContents.send("run-pkg");
             }
         }]
     }, {
-        label: "工具",
+        label: '编辑',
         submenu: [{
-            label: "打开调试工具",
-            accelerator: 'f12',
-            click: function () {
-                win.webContents.openDevTools();
-            }
+            label: '撤销',
+            accelerator: 'CmdOrCtrl+Z',
+            role: 'undo'
+        }, {
+            label: '重做',
+            accelerator: 'Shift+CmdOrCtrl+Z',
+            role: 'redo'
+        }, {
+            type: 'separator'
+        }, {
+            label: '剪切',
+            accelerator: 'CmdOrCtrl+X',
+            role: 'cut'
+        }, {
+            label: '复制',
+            accelerator: 'CmdOrCtrl+C',
+            role: 'copy'
+        }, {
+            label: '粘贴',
+            accelerator: 'CmdOrCtrl+V',
+            role: 'paste'
+        }, {
+            label: '全选',
+            accelerator: 'CmdOrCtrl+A',
+            role: 'selectall'
         }]
     }, {
         label: "视图",
         submenu: [{
             label: "刷新",
-            accelerator: ctrl + '+r',
+            accelerator: 'CmdOrCtrl+r',
             click: function () {
                 win.webContents.reload();
             }
         }, {
             label: "硬刷新",
-            accelerator: 'Shift+' + ctrl + '+r',
+            accelerator: 'Shift+CmdOrCtrl+r',
             click: function () {
                 win.webContents.reload(true);
+            }
+        }, {
+            type: 'separator'
+        }, {
+            label: "打开调试工具",
+            accelerator: 'f12',
+            click: function () {
+                win.webContents.openDevTools();
             }
         }]
     }]));

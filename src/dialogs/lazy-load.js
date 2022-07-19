@@ -1,4 +1,3 @@
 export default {
-    layer: () => import('./layer/index'),
-    template: () => import('./template/index')
+    layer: () => import('./layer/index')
 }

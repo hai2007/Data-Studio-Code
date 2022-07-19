@@ -1,8 +1,8 @@
 
 /*************************** [bundle] ****************************/
-// Original file:./src/pages/home/index.ts
+// Original file:./src/pages/doc/index.ts
 /*****************************************************************/
-window.__etcpack__bundleSrc__['24']=function(){
+window.__etcpack__bundleSrc__['25']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var _dec, _class2;
@@ -16,10 +16,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 __etcpack__scope_args__=window.__etcpack__getBundle('1');
 var Component=__etcpack__scope_args__.Component;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('32');
+__etcpack__scope_args__=window.__etcpack__getBundle('34');
 var style =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('33');
+__etcpack__scope_args__=window.__etcpack__getBundle('35');
 var template =__etcpack__scope_args__.default;
 
 
@@ -36,9 +36,9 @@ __etcpack__scope_bundle__.default=_class;
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/pages/home/index.scss
+// Original file:./src/pages/doc/index.scss
 /*****************************************************************/
-window.__etcpack__bundleSrc__['32']=function(){
+window.__etcpack__bundleSrc__['34']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     __etcpack__scope_bundle__.default= ""
@@ -47,9 +47,9 @@ window.__etcpack__bundleSrc__['32']=function(){
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/pages/home/index.html
+// Original file:./src/pages/doc/index.html
 /*****************************************************************/
-window.__etcpack__bundleSrc__['33']=function(){
+window.__etcpack__bundleSrc__['35']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     __etcpack__scope_bundle__.default= ""

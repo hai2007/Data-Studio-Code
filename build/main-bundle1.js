@@ -22,10 +22,10 @@ var ref=__etcpack__scope_args__.ref;
 __etcpack__scope_args__=window.__etcpack__getBundle('17');
 var xhtml =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('27');
+__etcpack__scope_args__=window.__etcpack__getBundle('26');
 var style =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('28');
+__etcpack__scope_args__=window.__etcpack__getBundle('27');
 var template =__etcpack__scope_args__.default;
 
 
@@ -100,7 +100,7 @@ __etcpack__scope_bundle__.default=_class;
 /*************************** [bundle] ****************************/
 // Original file:./src/dialogs/layer/index.scss
 /*****************************************************************/
-window.__etcpack__bundleSrc__['27']=function(){
+window.__etcpack__bundleSrc__['26']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     __etcpack__scope_bundle__.default= "\n .view{\n\nwidth: 700px;\n\nheight: 500px;\n\nposition: fixed;\n\nleft: calc(50vw - 350px);\n\ntop: calc(50vh - 250px);\n\nbackground-color: white;\n\n}\n\n .view>h2{\n\nbackground-color: rgb(0, 0, 0);\n\nline-height: 50px;\n\ncolor: white;\n\ntext-align: center;\n\ncursor: move;\n\n}\n\n .view>div.content{\n\nheight: 400px;\n\noverflow: auto;\n\n}\n\n .view>div.btns{\n\nline-height: 50px;\n\ntext-align: center;\n\n}\n\n .view>div.btns>button{\n\noutline: none;\n\nborder: none;\n\nmargin: 0 10px;\n\npadding: 5px 10px;\n\ncolor: white;\n\ncursor: pointer;\n\nbackground-color: rgb(80, 74, 74);\n\n}\n"
@@ -111,10 +111,10 @@ window.__etcpack__bundleSrc__['27']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./src/dialogs/layer/index.html
 /*****************************************************************/
-window.__etcpack__bundleSrc__['28']=function(){
+window.__etcpack__bundleSrc__['27']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_bundle__.default= "<div class=\"view\">\n    <h2 ui-dragdrop>\n        使用图层\n    </h2>\n    <div class=\"content layer\" id=\"dialogs@layer\"></div>\n    <div class=\"btns\">\n        <button ui-on:click=\"close\">取消</button>\n    </div>\n</div>\n"
+    __etcpack__scope_bundle__.default= "<div class=\"view\">\n    <h2 ui-dragdrop>\n        新增图表\n    </h2>\n    <div class=\"content layer\" id=\"dialogs@layer\"></div>\n    <div class=\"btns\">\n        <button ui-on:click=\"close\">取消</button>\n    </div>\n</div>\n"
   
     return __etcpack__scope_bundle__;
 }

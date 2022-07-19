@@ -114,15 +114,6 @@ export default class {
         })
     }
 
-    // 选中模板（弹框）
-    useTemplate() {
-        this.openDialog('template').then((target: any) => {
-            target.component.init({
-                el: target.el
-            })
-        })
-    }
-
     // 打开弹框
     openDialog(dialogName) {
 
@@ -174,17 +165,24 @@ export default class {
         // 启动事件监听主进程
         globalThis.nodeRequire('electron').ipcRenderer
 
-            // 文件 / 安装
+            // 安装
             .on("install-graph", (event, graph) => {
                 this.loadGraph(graph)
             })
 
-            // 文件 / 打开
+            // 打开
             .on("open-view", (event, view) => {
                 this.runTemplate(view)
             })
 
-            // 运行 / 打包
+            // 保存
+            .on("save-view", (event) => {
+                if (this.view.path) {
+                    globalThis.nodeRequire('electron').ipcRenderer.send("save-view", this.view)
+                }
+            })
+
+            // 打包
             .on("run-pkg", (event) => {
                 globalThis.nodeRequire('electron').ipcRenderer.send("run-pkg", this.view)
             })
